@@ -53,27 +53,27 @@ class EmployeeController extends Controller
         $data['RowId'] = Employee::getNextRowId();
         $data['CreatedDate'] = date('Y-m-d H:i:s');
 
-        // try {
-        Employee::create([
-            'RowId' => $data['RowId'],
-            'Nama' => $data['name'],
-            'NIK' => intval($data['nik']),
-            'Email' => $data['email'],
-            'Jabatan' => $data['jabatan'],
-            'Status' => $data['status'],
-            'CreatedDate' => $data['CreatedDate'],
-        ]);
+        try {
+            Employee::create([
+                'RowId' => $data['RowId'],
+                'Nama' => $data['name'],
+                'NIK' => intval($data['nik']),
+                'Email' => $data['email'],
+                'Jabatan' => $data['jabatan'],
+                'Status' => $data['status'],
+                'CreatedDate' => $data['CreatedDate'],
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee created successfully!'
-        ], 201);
-        // } catch (\Throwable $th) {
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => $th->getMessage()
-        //     ], 500);
-        // }
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee created successfully!'
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     public function storeExcel(EmployeeStoreBatchRequest $request)
