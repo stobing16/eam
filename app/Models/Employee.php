@@ -8,11 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Employee extends Model
 {
     use HasFactory;
-    protected $connection = 'sqlsrv';
     protected $table = 'MsEmployees';
+    protected $primaryKey = 'RowId';
     public $timestamps = false;
+
     protected $fillable = [
-        'RowId', 'Nama', 'Email','CreatedDate'
+        'RowId',
+        'NIK',
+        'Nama',
+        'Email',
+        'Jabatan',
+        'Status',
+        'CreatedDate'
     ];
 
     public static function getNextRowId()
