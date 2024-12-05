@@ -5,26 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee extends Model
+class Company extends Model
 {
     use HasFactory;
-    protected $table = 'MsEmployees';
+    protected $table = 'MsCompany';
     protected $primaryKey = 'RowId';
     public $timestamps = false;
 
     protected $fillable = [
         'RowId',
-        'NIK',
-        'Nama',
-        'Email',
-        'Jabatan',
+        'CompanyId',
+        'CompanyName',
         'Status',
         'Active',
-        'CreatedDate'
+        'CreatedDate',
+        'CreatedBy'
     ];
 
     public static function getNextRowId()
     {
-        return Employee::max('RowId') + 1;
+        return parent::max('RowId') + 1;
     }
 }

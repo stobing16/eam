@@ -16,12 +16,12 @@ class EmployeeController extends Controller
     {
         $page = $request->input('per_page', 10);
         $current_page = $request->input('current_page', 1);
+        $search = $request->input('search');
 
-        $employees = Employee::skip(($current_page - 1) * $page)->take($page)->get();
+        $employees = Employee::skip(($current_page - 1) * $page)->take($page)->orderBy('CreatedDate', 'desc')->get();
         $totalItems = Employee::count();
 
         $totalPages = ceil($totalItems / $page);
-
 
         $response = [
             'currentPage' => $current_page,
@@ -48,7 +48,6 @@ class EmployeeController extends Controller
     public function store(EmployeeStoreRequest $request)
     {
         $data = $request->validated();
-        Log::debug($data);
 
         $data['RowId'] = Employee::getNextRowId();
         $data['CreatedDate'] = date('Y-m-d H:i:s');
@@ -60,7 +59,8 @@ class EmployeeController extends Controller
                 'NIK' => intval($data['nik']),
                 'Email' => $data['email'],
                 'Jabatan' => $data['jabatan'],
-                'Status' => $data['status'],
+                'Status' => $data['status'] ? "A" : "I",
+                'Active' => $data['status'],
                 'CreatedDate' => $data['CreatedDate'],
             ]);
 
@@ -91,7 +91,8 @@ class EmployeeController extends Controller
                     'NIK' => $value['nik'],
                     'Email' => $value['email'],
                     'Jabatan' => $value['jabatan'],
-                    'Status' => $value['status'],
+                    'Status' => $value['status'] ? "A" : "I",
+                    'Active' => $value['status'],
                     'CreatedDate' => $value['CreatedDate'],
                 ]);
             }
@@ -120,7 +121,8 @@ class EmployeeController extends Controller
             $employee->NIK = $data['nik'];
             $employee->Email = $data['email'];
             $employee->Jabatan = $data['jabatan'];
-            $employee->Status = $data['status'];
+            $employee->Status = $data['status'] ? "A" : "I";
+            $employee->Active = $data['status'];
             $employee->LastUpdatedDate = $data['LastUpdatedDate'];
 
             $employee->save();
