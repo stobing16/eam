@@ -20,6 +20,7 @@ class Employee extends Model
         'Jabatan',
         'Status',
         'Active',
+        'Department',
         'CreatedDate'
     ];
 

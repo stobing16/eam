@@ -55,12 +55,13 @@ class EmployeeController extends Controller
         try {
             Employee::create([
                 'RowId' => $data['RowId'],
-                'Nama' => $data['name'],
-                'NIK' => intval($data['nik']),
-                'Email' => $data['email'],
-                'Jabatan' => $data['jabatan'],
-                'Status' => $data['status'] ? "A" : "I",
-                'Active' => $data['status'],
+                'Nama' => $data['Nama'],
+                'NIK' => 0,
+                'Email' => $data['Email'],
+                'Department' => $data['Department'],
+                'Jabatan' => $data['Jabatan'],
+                'Status' => $data['Status'],
+                'Active' => 1,
                 'CreatedDate' => $data['CreatedDate'],
             ]);
 
@@ -88,7 +89,7 @@ class EmployeeController extends Controller
                 Employee::create([
                     'RowId' => $value['RowId'],
                     'Nama' => $value['name'],
-                    'NIK' => $value['nik'],
+                    'NIK' =>0,
                     'Email' => $value['email'],
                     'Jabatan' => $value['jabatan'],
                     'Status' => $value['status'] ? "A" : "I",
@@ -113,16 +114,24 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
         $data['LastUpdatedDate'] = date('Y-m-d H:i:s');
-
+//        'RowId' => $data['RowId'],
+//                'Nama' => $data['Nama'],
+//                'NIK' => 123,
+//                'Email' => $data['Email'],
+//                'Department' => $data['Department'],
+//                'Jabatan' => $data['Jabatan'],
+//                'Status' => $data['Status'],
+//                'Active' => 1,
+//                'CreatedDate' => $data['CreatedDate'],
         try {
             $employee = Employee::findOrFail($id);
 
-            $employee->Nama = $data['name'];
-            $employee->NIK = $data['nik'];
-            $employee->Email = $data['email'];
-            $employee->Jabatan = $data['jabatan'];
-            $employee->Status = $data['status'] ? "A" : "I";
-            $employee->Active = $data['status'];
+            $employee->Nama = $data['Nama'];
+            $employee->NIK = 0;
+            $employee->Email = $data['Email'];
+            $employee->Jabatan = $data['Jabatan'];
+            $employee->Status = $data['Status'];
+            $employee->Active = $data['Status'] === 'A' ? 1 : 0;
             $employee->LastUpdatedDate = $data['LastUpdatedDate'];
 
             $employee->save();

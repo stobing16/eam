@@ -12,19 +12,7 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $page = $request->input('per_page', 10);
-        $employees = Employee::paginate($page);
-
-        $response = [
-            'currentPage' => $employees->currentPage(),
-            'rowsPerPage' => $employees->perPage(),
-            'totalPages' => $employees->lastPage(),
-            'isFirstPage' => $employees->onFirstPage(),
-            'isLastPage' => $employees->onLastPage(),
-            'data' => $employees->items(),
-        ];
-
-        return response()->json($response);
+         return view('employee');
     }
 
     public function store(EmployeeStoreRequest $request)
