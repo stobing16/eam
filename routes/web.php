@@ -13,10 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-//
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
 // Route::get('/employee', [\App\Http\Controllers\HomeController::class, 'index'])->name('employees');
 // Route::get('/create', [\App\Http\Controllers\HomeController::class, 'create'])->name('employees.create');
 // Route::post('/create/employee', [\App\Http\Controllers\HomeController::class, 'store'])->name('employees.store');
+
+Route::get('{any}', function () {
+    return view('welcome');
+})->where('any', '.*');
