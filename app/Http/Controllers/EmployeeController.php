@@ -131,7 +131,7 @@ class EmployeeController extends Controller
             $employee->NIK = 0;
             $employee->Email = $data['Email'];
             $employee->Jabatan = $data['Jabatan'];
-            $employee->Department = $data['Departmen'];
+            $employee->Department = $data['Department'];
             $employee->Status = $data['Status'];
             $employee->Active = $data['Status'] === 'A' ? 1 : 0;
             $employee->LastUpdatedDate = $data['LastUpdatedDate'];
