@@ -169,17 +169,22 @@ export default {
     methods: {
         async fetchEmployees(page = 1) {
             try {
+                // Ensure 'page' is treated as a number
+                page = Number(page);
+
                 const response = await axios.get("/api/employee", {
                     params: {
-                        per_page: this.pagination.rowsPerPage,
-                        current_page: page,
-                        search: this.search,
+                        per_page: this.pagination.rowsPerPage, // Rows per page
+                        current_page: page, // Current page
+                        search: this.search, // Search query (optional)
                     },
                 });
+
                 const data = response.data;
 
+                // Update employee data and pagination
                 this.employees = data.data;
-                this.pagination.currentPage = data.currentPage;
+                this.pagination.currentPage = Number(data.currentPage); // Ensure it's a number
                 this.pagination.rowsPerPage = data.rowsPerPage;
                 this.pagination.totalPages = data.totalPages;
             } catch (error) {
