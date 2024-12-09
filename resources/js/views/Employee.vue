@@ -13,52 +13,50 @@
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Position</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(employee, index) in employees" :key="employee.id">
-                    <td>{{ index + 1 + (pagination.currentPage - 1) * pagination.rowsPerPage }}</td>
-                    <td>{{ employee.Nama }}</td>
-                    <td>{{ employee.Department }}</td>
-                    <td>{{ employee.Jabatan }}</td>
-                    <td>{{ employee.Email }}</td>
-                    <td>{{ employee.Status === 'A' ? 'Active' : 'Inactive' }}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" @click="openEditModal(employee)">Edit</button>
-                        <button class="btn btn-danger btn-sm" @click="deleteEmployee(employee.RowId)">Delete</button>
-                    </td>
-                </tr>
+                    <tr v-for="(employee, index) in employees" :key="employee.id">
+                        <td>{{ index + 1 + (pagination.currentPage - 1) * pagination.rowsPerPage }}</td>
+                        <td>{{ employee.Nama }}</td>
+                        <td>{{ employee.Department }}</td>
+                        <td>{{ employee.Jabatan }}</td>
+                        <td>{{ employee.Email }}</td>
+                        <td>{{ employee.Status === 'A' ? 'Active' : 'Inactive' }}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" @click="openEditModal(employee)">Edit</button>
+                            <button class="btn btn-danger btn-sm"
+                                @click="deleteEmployee(employee.RowId)">Delete</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
         <div class="pagination">
-            <button
-                class="btn btn-secondary"
-                :disabled="pagination.currentPage === 1"
-                @click="fetchEmployees(pagination.currentPage - 1)"
-            >
+            <button class="btn btn-secondary" :disabled="pagination.currentPage === 1"
+                @click="fetchEmployees(pagination.currentPage - 1)">
                 Previous
             </button>
             <span>Page {{ pagination.currentPage }} of {{ pagination.totalPages }}</span>
-            <button
-                class="btn btn-secondary"
-                :disabled="pagination.currentPage === pagination.totalPages"
-                @click="fetchEmployees(pagination.currentPage + 1)"
-            >
+            <button class="btn btn-secondary" :disabled="pagination.currentPage === pagination.totalPages"
+                @click="fetchEmployees(pagination.currentPage + 1)">
                 Next
             </button>
         </div>
 
-
-        <button class="btn btn-primary" @click="openCreateModal">Create Employee</button>
+        <!-- Button to trigger the modal to create a new employee -->
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" @click="openCreateModal">Create Employee</button>
+            <button class="btn btn-primary" @click="openExcelCreateModal">Export Excel</button>
+        </div>
 
 
         <div class="modal" tabindex="-1" :class="{ show: showModal }" style="display: block;" v-if="showModal">
@@ -71,29 +69,16 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                class="form-control"
-                                v-model="selectedEmployee.Nama"
-                            />
+                            <input type="text" id="name" class="form-control" v-model="selectedEmployee.Nama" />
                         </div>
                         <div class="form-group">
                             <label for="department">Department</label>
-                            <input
-                                type="text"
-                                id="department"
-                                class="form-control"
-                                v-model="selectedEmployee.Department"
-                            />
+                            <input type="text" id="department" class="form-control"
+                                v-model="selectedEmployee.Department" />
                         </div>
                         <div class="form-group">
                             <label for="jabatan">Position</label>
-                            <select
-                                id="jabatan"
-                                class="form-control"
-                                v-model="selectedEmployee.Jabatan"
-                            >
+                            <select id="jabatan" class="form-control" v-model="selectedEmployee.Jabatan">
                                 <option value="">Select Jabatan</option>
                                 <option v-for="jabatan in jabatanList" :key="jabatan.id" :value="jabatan.Jabatan">
                                     {{ jabatan.Jabatan }}
@@ -103,21 +88,12 @@
 
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                class="form-control"
-                                v-model="selectedEmployee.Email"
-                            />
+                            <input type="email" id="email" class="form-control" v-model="selectedEmployee.Email" />
                         </div>
 
                         <div class="form-group" v-if="isEditing">
                             <label for="status">Status</label>
-                            <select
-                                id="status"
-                                class="form-control"
-                                v-model="selectedEmployee.Status"
-                            >
+                            <select id="status" class="form-control" v-model="selectedEmployee.Status">
                                 <option value="A">Active</option>
                                 <option value="I">Inactive</option>
                             </select>
@@ -127,8 +103,34 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-                        <button type="button" class="btn btn-primary" @click="isEditing ? updateEmployee() : createEmployee()">
+                        <button type="button" class="btn btn-primary"
+                            @click="isEditing ? updateEmployee() : createEmployee()">
                             {{ isEditing ? 'Save Changes' : 'Create Employee' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Edit or Create Employee -->
+        <div class="modal" tabindex="-1" :class="{ show: showModalExcel }" style="display: block;"
+            v-if="showModalExcel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import Excel Employee</h5>
+                        <button type="button" class="btn-close" @click="closeModalExcel"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="file" @change="handleFileUploadExcel" />
+                            <pre>{{ excelFile }}</pre>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click.prevent="closeModalExcel">Cancel</button>
+                        <button type="button" class="btn btn-primary" @click="importEmployee">
+                            Submit
                         </button>
                     </div>
                 </div>
@@ -139,6 +141,7 @@
 
 <script>
 import axios from "axios";
+import * as XLSX from 'xlsx';
 
 export default {
     name: "Employee",
@@ -152,6 +155,7 @@ export default {
                 totalPages: 1,
             },
             showModal: false,
+            showModalExcel: false,
             selectedEmployee: {
                 Nama: "",
                 Department: "",
@@ -159,6 +163,7 @@ export default {
                 Email: "",
                 Status: "A",
             },
+            excelFile: null,
             isEditing: false,
         };
     },
@@ -219,9 +224,18 @@ export default {
             this.showModal = true;
         },
 
+        openExcelCreateModal() {
+            this.showModalExcel = true;
+        },
+
         closeModal() {
             this.showModal = false;
             this.selectedEmployee = {};
+        },
+
+        closeModalExcel() {
+            this.showModalExcel = false;
+            this.excelFile = null;
         },
 
         async createEmployee() {
@@ -275,6 +289,47 @@ export default {
                     });
             }
         },
+
+        handleFileUploadExcel(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const data = e.target.result;
+                    const workbook = XLSX.read(data, { type: 'binary' });
+
+                    // Mengambil data dari sheet pertama
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                    // Mengonversi sheet pertama menjadi JSON
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    // Menampilkan hasil konversi JSON
+                    console.log(jsonData)
+                    this.excelFile = jsonData;
+                };
+
+                reader.readAsArrayBuffer(file);
+            }
+        },
+
+        async importEmployee() {
+            if (this.excelFile) {
+                try {
+                    const response = await axios.post("/api/employee/excel", this.excelFile);
+                    alert("Employee created successfully!", response.data);
+                    this.fetchEmployees(this.pagination.currentPage);
+                    this.closeModalExcel();
+                } catch (error) {
+                    console.error("Error importing employee:", error);
+                    alert("Failed to import employee.");
+                }
+            } else {
+                console.error("error")
+            }
+        }
     },
 };
 </script>
@@ -322,11 +377,16 @@ export default {
     margin-right: 5px;
 }
 
-.modal-enter-active, .modal-leave-active {
+.modal-enter-active,
+.modal-leave-active {
     transition: opacity 0.3s ease;
 }
 
-.modal-enter, .modal-leave-to /* .modal-leave-active in <2.1.8 */ {
+.modal-enter,
+.modal-leave-to
+
+/* .modal-leave-active in <2.1.8 */
+    {
     opacity: 0;
 }
 

@@ -110,12 +110,12 @@ class EmployeeController extends Controller
                     'RowId' => $data['RowId'],
                     'Nama' => $data['Nama'],
                     'NIK' => 0,
-                    'Email' => $data['Email'],
-                    'Department' => $data['Department'],
-                    'Jabatan' => $data['Jabatan'],
-                    'Status' => $data['Status'],
-                    'Active' => 1,
-                    'CreatedDate' => $data['CreatedDate'],
+                    'Email' => $value['email'],
+                    'Department' => isset($data['Department']) ? $data['Department'] : null,
+                    'Jabatan' => $value['jabatan'],
+                    'Status' => $value['status'] ? "A" : "I",
+                    'Active' => $value['status'],
+                    'CreatedDate' => $value['CreatedDate'],
                 ]);
             }
 

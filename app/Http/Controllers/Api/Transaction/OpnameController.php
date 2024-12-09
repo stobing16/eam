@@ -17,6 +17,12 @@ class OpnameController extends Controller
         return response()->json($results);
     }
 
+    public function details($id)
+    {
+        $results = DB::select('EXEC GetOpnameOrderDetailList @OpnameOrderId = ?', [$id]);
+        return response()->json($results);
+    }
+
     public function saveOpname(Request $request)
     {
         $request->validate([
