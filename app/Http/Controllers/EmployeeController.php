@@ -91,7 +91,7 @@ class EmployeeController extends Controller
                     'Nama' => $value['name'],
                     'NIK' => 0,
                     'Email' => $value['email'],
-                    'Department' => $data['Department'],
+                    'Department' => isset($data['Department']) ? $data['Department'] : null,
                     'Jabatan' => $value['jabatan'],
                     'Status' => $value['status'] ? "A" : "I",
                     'Active' => $value['status'],

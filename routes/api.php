@@ -35,6 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/assets/checkin', [AssetController::class, 'checkIn'])->name('assets.checkin');
     Route::post('/assets/checkout', [AssetController::class, 'checkOut'])->name('assets.checkout');
 
+    Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
+    Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
     Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
     Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
 });
