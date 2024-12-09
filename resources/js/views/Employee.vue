@@ -2,8 +2,13 @@
     <div class="employee-page">
         <h1 class="page-title">Employee List</h1>
         <div class="search-bar">
-            <input type="text" class="form-control" v-model="search" @keyup.enter="fetchEmployees"
-                placeholder="Search employees..." />
+            <input
+                type="text"
+                class="form-control"
+                v-model="search"
+                @input="fetchEmployees"
+                placeholder="Search employees..."
+            />
         </div>
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
@@ -53,7 +58,7 @@
             <button class="btn btn-primary" @click="openExcelCreateModal">Export Excel</button>
         </div>
 
-        <!-- Modal for Edit or Create Employee -->
+
         <div class="modal" tabindex="-1" :class="{ show: showModal }" style="display: block;" v-if="showModal">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -169,20 +174,17 @@ export default {
     methods: {
         async fetchEmployees(page = 1) {
             try {
-                // Ensure 'page' is treated as a number
                 page = Number(page);
 
                 const response = await axios.get("/api/employee", {
                     params: {
-                        per_page: this.pagination.rowsPerPage, // Rows per page
-                        current_page: page, // Current page
-                        search: this.search, // Search query (optional)
+                        per_page: this.pagination.rowsPerPage,
+                        current_page: page,
+                        search: this.search,
                     },
                 });
 
                 const data = response.data;
-
-                // Update employee data and pagination
                 this.employees = data.data;
                 this.pagination.currentPage = Number(data.currentPage); // Ensure it's a number
                 this.pagination.rowsPerPage = data.rowsPerPage;
@@ -276,7 +278,7 @@ export default {
                     .then((response) => {
                         if (response.data.success) {
                             alert("Employee deleted successfully!");
-                            this.fetchEmployees(this.pagination.currentPage); // Refresh employee list
+                            this.fetchEmployees(this.pagination.currentPage);
                         } else {
                             alert("Failed to delete employee.");
                         }
@@ -387,4 +389,46 @@ export default {
     {
     opacity: 0;
 }
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: scale(0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Show the modal */
+.modal.show {
+    display: block;
+    opacity: 1;
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
+}
+
+.close-btn {
+    color: red;
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+}
+
 </style>
