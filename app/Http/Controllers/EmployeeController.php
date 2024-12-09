@@ -89,8 +89,9 @@ class EmployeeController extends Controller
                 Employee::create([
                     'RowId' => $value['RowId'],
                     'Nama' => $value['name'],
-                    'NIK' =>0,
+                    'NIK' => 0,
                     'Email' => $value['email'],
+                    'Department' => $data['Department'],
                     'Jabatan' => $value['jabatan'],
                     'Status' => $value['status'] ? "A" : "I",
                     'Active' => $value['status'],
@@ -114,15 +115,15 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
         $data['LastUpdatedDate'] = date('Y-m-d H:i:s');
-//        'RowId' => $data['RowId'],
-//                'Nama' => $data['Nama'],
-//                'NIK' => 123,
-//                'Email' => $data['Email'],
-//                'Department' => $data['Department'],
-//                'Jabatan' => $data['Jabatan'],
-//                'Status' => $data['Status'],
-//                'Active' => 1,
-//                'CreatedDate' => $data['CreatedDate'],
+        //        'RowId' => $data['RowId'],
+        //                'Nama' => $data['Nama'],
+        //                'NIK' => 123,
+        //                'Email' => $data['Email'],
+        //                'Department' => $data['Department'],
+        //                'Jabatan' => $data['Jabatan'],
+        //                'Status' => $data['Status'],
+        //                'Active' => 1,
+        //                'CreatedDate' => $data['CreatedDate'],
         try {
             $employee = Employee::findOrFail($id);
 
@@ -130,6 +131,7 @@ class EmployeeController extends Controller
             $employee->NIK = 0;
             $employee->Email = $data['Email'];
             $employee->Jabatan = $data['Jabatan'];
+            $employee->Department = $data['Department'];
             $employee->Status = $data['Status'];
             $employee->Active = $data['Status'] === 'A' ? 1 : 0;
             $employee->LastUpdatedDate = $data['LastUpdatedDate'];
