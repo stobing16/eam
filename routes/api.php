@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Transaction\AssetController;
+use App\Http\Controllers\Api\Transaction\OpnameController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
@@ -23,8 +25,18 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::post('register', [AuthController::class, 'register'])->name('register');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::post('/assets', [AssetController::class, 'saveAsset'])->name('assets.save');
+    Route::patch('/assets', [AssetController::class, 'updateAsset'])->name('assets.update');
+    Route::post('/assets/checkin', [AssetController::class, 'checkIn'])->name('assets.checkin');
+    Route::post('/assets/checkout', [AssetController::class, 'checkOut'])->name('assets.checkout');
+
+    Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
+    Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
 });
 
 Route::get('/employee', [EmployeeController::class, 'index'])->name('employees');
