@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
 import AuthLayout from '../layouts/AuthLayout.vue';
 
-const isLoggedIn = () => localStorage.getItem('token');
+// const isLoggedIn = () => localStorage.getItem('token');
 
 const routes = [
     {
@@ -45,12 +45,12 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach((to, from, next) => {
-    if (to.meta.requiresAuth && !isLoggedIn()) {
-        next({ name: 'login' });
-    } else {
-        next();
-    }
-});
+// router.beforeEach((to, from, next) => {
+//     if (to.meta.requiresAuth && !isLoggedIn()) {
+//         next({ name: 'login' });
+//     } else {
+//         next();
+//     }
+// });
 
 export default router;

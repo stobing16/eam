@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Android\AssetOpnameSingleController;
 use App\Http\Controllers\Api\Master\AssetTypeController;
 use App\Http\Controllers\Api\Master\BrandController;
 use App\Http\Controllers\Api\Master\MainGroupController;
@@ -33,40 +34,40 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
-    Route::post('/assets', [AssetController::class, 'saveAsset'])->name('assets.save');
-    Route::patch('/assets', [AssetController::class, 'updateAsset'])->name('assets.update');
-    Route::post('/assets/checkin', [AssetController::class, 'checkIn'])->name('assets.checkin');
-    Route::post('/assets/checkout', [AssetController::class, 'checkOut'])->name('assets.checkout');
-
-    Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
-    Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
-    Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
-    Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
-
-    // MASTER
-
-    // --- ASSET HIRARKI ---
-    Route::get('/main-group', [MainGroupController::class, 'index']);
-    Route::post('/main-group', [MainGroupController::class, 'store']);
-    Route::patch('/main-group/{id}', [MainGroupController::class, 'update']);
-    Route::delete('/main-group/{id}', [MainGroupController::class, 'delete']);
-
-    Route::get('/asset-type/{code}', [AssetTypeController::class, 'index']);
-    Route::post('/asset-type', [AssetTypeController::class, 'store']);
-    Route::patch('/asset-type/{id}', [AssetTypeController::class, 'update']);
-    Route::delete('/asset-type/{id}', [AssetTypeController::class, 'delete']);
-
-    Route::get('/brand/{code}', [BrandController::class, 'index']);
-    Route::post('/brand', [BrandController::class, 'store']);
-    Route::patch('/brand/{id}', [BrandController::class, 'update']);
-    Route::delete('/brand/{id}', [BrandController::class, 'delete']);
-
-    Route::get('/model-asset/{code}', [ModelAssetController::class, 'index']);
-    Route::post('/model-asset', [ModelAssetController::class, 'store']);
-    Route::patch('/model-asset/{id}', [ModelAssetController::class, 'update']);
-    Route::delete('/model-asset/{id}', [ModelAssetController::class, 'delete']);
 });
+
+Route::post('/assets', [AssetController::class, 'saveAsset'])->name('assets.save');
+Route::patch('/assets', [AssetController::class, 'updateAsset'])->name('assets.update');
+Route::post('/assets/checkin', [AssetController::class, 'checkIn'])->name('assets.checkin');
+Route::post('/assets/checkout', [AssetController::class, 'checkOut'])->name('assets.checkout');
+
+Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
+Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
+Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
+Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+
+// MASTER
+
+// --- ASSET HIRARKI ---
+Route::get('/main-group', [MainGroupController::class, 'index']);
+Route::post('/main-group', [MainGroupController::class, 'store']);
+Route::patch('/main-group/{id}', [MainGroupController::class, 'update']);
+Route::delete('/main-group/{id}', [MainGroupController::class, 'delete']);
+
+Route::get('/asset-type/{code}', [AssetTypeController::class, 'index']);
+Route::post('/asset-type', [AssetTypeController::class, 'store']);
+Route::patch('/asset-type/{id}', [AssetTypeController::class, 'update']);
+Route::delete('/asset-type/{id}', [AssetTypeController::class, 'delete']);
+
+Route::get('/brand/{code}', [BrandController::class, 'index']);
+Route::post('/brand', [BrandController::class, 'store']);
+Route::patch('/brand/{id}', [BrandController::class, 'update']);
+Route::delete('/brand/{id}', [BrandController::class, 'delete']);
+
+Route::get('/model-asset/{code}', [ModelAssetController::class, 'index']);
+Route::post('/model-asset', [ModelAssetController::class, 'store']);
+Route::patch('/model-asset/{id}', [ModelAssetController::class, 'update']);
+Route::delete('/model-asset/{id}', [ModelAssetController::class, 'delete']);
 
 Route::get('/employee', [EmployeeController::class, 'index'])->name('employees');
 Route::get('/employee/jabatan', [EmployeeController::class, 'jabatan'])->name('employees.jabatan');
@@ -104,3 +105,5 @@ Route::get('/project', [ProjectController::class, 'index'])->name('projects');
 Route::post('/project', [ProjectController::class, 'store'])->name('projects.store');
 Route::patch('/project/{id}', [ProjectController::class, 'update'])->name('projects.update');
 Route::delete('/project/{id}', [ProjectController::class, 'delete'])->name('projects.delete');
+
+Route::get('/android/opname-list', [AssetOpnameSingleController::class, 'getOpnameOrderAndroidList']);
