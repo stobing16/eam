@@ -51,7 +51,8 @@ class AssetTypeController extends Controller
                 'AssetType' => $data['name'],
                 'Alias' => $data['alias'],
                 'CreatedDate' => date('Y-m-d H:i:s'),
-                'CreatedBy' => Auth::user()->id,
+                // 'CreatedBy' => Auth::user()->id,
+                'CreatedBy' => '1',
                 'LastUpdatedBy' => "1"
             ]);
 

@@ -52,7 +52,8 @@ class BrandController extends Controller
                 'BrandCode' => $code,
                 'BrandName' => $data['name'],
                 'CreatedDate' => date('Y-m-d H:i:s'),
-                'CreatedBy' => Auth::user()->id,
+                // 'CreatedBy' => Auth::user()->id,
+                'CreatedBy' => "1",
                 'LastUpdatedBy' => "1"
             ]);
 

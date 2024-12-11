@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Android;
 
 use App\Http\Controllers\Controller;
+use App\Models\Api\TxOpnameAssetAndroidSingleTemp;
 use App\Models\Api\TxOpnameOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,5 +33,23 @@ class AssetOpnameSingleController extends Controller
         return response()->json($res);
     }
 
-    public function saveAsset(Request $request) {}
+    public function saveAsset(Request $request)
+    {
+        $request->validate([
+            'opname' => 'required',
+            'barcode' => 'required',
+            'condition' => 'required',
+        ]);
+
+        $barcode = trim($request->barcode);
+        $opname = TxOpnameAssetAndroidSingleTemp::where('Barcode', $barcode)->andWhere('OpnameOrderId', $request->opname)->exists();
+        if (!$opname) {
+            TxOpnameAssetAndroidSingleTemp::create([
+                'OpnameOrderId' => $request->opname,
+                'Barcode' => $barcode,
+                'Condition' => $request->condition,
+                'Created'
+            ]);
+        }
+    }
 }
