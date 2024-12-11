@@ -48,7 +48,7 @@ class AssetOpnameSingleController extends Controller
                 'OpnameOrderId' => $request->opname,
                 'Barcode' => $barcode,
                 'Condition' => $request->condition,
-                'Created'
+                'Created' => ''
             ]);
         }
     }
