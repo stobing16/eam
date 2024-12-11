@@ -17,7 +17,7 @@
                                         Dashboard v2
                                     </li>
                                 </ol>
-                                <button @click.prevent="logout" type="button" class="btn btn-primary">Logout</button>
+                                <!-- <button @click.prevent="logout" type="button" class="btn btn-primary">Logout</button> -->
                             </div>
                         </div>
                     </div>
