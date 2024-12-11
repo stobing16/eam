@@ -21,6 +21,7 @@ class AssetType extends Model
         'Active',
         'CreatedBy',
         'CreatedDate',
+        'LastUpdatedBy'
     ];
 
     public static function getNextRowId()

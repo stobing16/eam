@@ -23,6 +23,7 @@ class ModelAsset extends Model
         'Active',
         'CreatedDate',
         'CreatedBy',
+        'LastUpdatedBy',
     ];
 
     public static function getNextRowId()

@@ -5,19 +5,23 @@ namespace App\Models\Api;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Counter extends Model
+class Brand extends Model
 {
     use HasFactory;
-    protected $table = 'MsCounter';
-    protected $primaryKey = 'CounterId';
+    protected $table = 'MsBrand';
+    protected $primaryKey = 'RowId';
     public $timestamps = false;
 
     protected $fillable = [
-        'CounterId',
-        'CounterNumber',
-        'CounterFormat',
-        'Description',
-        'Other',
+        'MainGroupCode',
+        'AssetTypeCode',
+        'BrandName',
+        'BrandCode',
+        'Status',
+        'Active',
+        'CreatedBy',
+        'CreatedDate',
+        'LastUpdatedBy'
     ];
 
     public static function getNextRowId()

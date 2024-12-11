@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Master\AssetTypeController;
+use App\Http\Controllers\Api\Master\BrandController;
+use App\Http\Controllers\Api\Master\MainGroupController;
+use App\Http\Controllers\Api\Master\ModelAssetController;
 use App\Http\Controllers\Api\Transaction\AssetController;
 use App\Http\Controllers\Api\Transaction\OpnameController;
 use App\Http\Controllers\AuthController;
@@ -39,6 +43,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
     Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
     Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+
+    // MASTER
+
+    // --- ASSET HIRARKI ---
+    Route::get('/main-group', [MainGroupController::class, 'index']);
+    Route::post('/main-group', [MainGroupController::class, 'store']);
+    Route::patch('/main-group/{id}', [MainGroupController::class, 'update']);
+    Route::delete('/main-group/{id}', [MainGroupController::class, 'delete']);
+
+    Route::get('/asset-type/{code}', [AssetTypeController::class, 'index']);
+    Route::post('/asset-type', [AssetTypeController::class, 'store']);
+    Route::patch('/asset-type/{id}', [AssetTypeController::class, 'update']);
+    Route::delete('/asset-type/{id}', [AssetTypeController::class, 'delete']);
+
+    Route::get('/brand/{code}', [BrandController::class, 'index']);
+    Route::post('/brand', [BrandController::class, 'store']);
+    Route::patch('/brand/{id}', [BrandController::class, 'update']);
+    Route::delete('/brand/{id}', [BrandController::class, 'delete']);
+
+    Route::get('/model-asset/{code}', [ModelAssetController::class, 'index']);
+    Route::post('/model-asset', [ModelAssetController::class, 'store']);
+    Route::patch('/model-asset/{id}', [ModelAssetController::class, 'update']);
+    Route::delete('/model-asset/{id}', [ModelAssetController::class, 'delete']);
 });
 
 Route::get('/employee', [EmployeeController::class, 'index'])->name('employees');

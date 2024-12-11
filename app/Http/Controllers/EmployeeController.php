@@ -15,23 +15,22 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
 
-        $request->validate([
-            'per_page' => 'integer|min:1',
-            'current_page' => 'integer|min:1',
-        ]);
+        // $request->validate([
+        //     'per_page' => 'numeric|min:1',
+        //     'current_page' => 'numeric|min:1',
+        // ]);
 
         $page = (int) $request->input('per_page', 10);
         $current_page = (int) $request->input('current_page', 1);
         $search = $request->input('search', '');
-
 
         $query = Employee::orderBy('CreatedDate', 'desc');
 
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%");
+                $q->where('Nama', 'like', "%$search%")
+                    ->orWhere('Email', 'like', "%$search%");
             });
         }
 
@@ -107,11 +106,11 @@ class EmployeeController extends Controller
                 $value['CreatedDate'] = date('Y-m-d H:i:s');
 
                 Employee::create([
-                    'RowId' => $data['RowId'],
-                    'Nama' => $data['Nama'],
+                    'RowId' => $value['RowId'],
+                    'Nama' => $value['name'],
                     'NIK' => 0,
                     'Email' => $value['email'],
-                    'Department' => isset($data['Department']) ? $data['Department'] : null,
+                    'Department' => isset($value['department']) ? $value['department'] : null,
                     'Jabatan' => $value['jabatan'],
                     'Status' => $value['status'] ? "A" : "I",
                     'Active' => $value['status'],
@@ -135,15 +134,6 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
         $data['LastUpdatedDate'] = date('Y-m-d H:i:s');
-        //        'RowId' => $data['RowId'],
-        //                'Nama' => $data['Nama'],
-        //                'NIK' => 123,
-        //                'Email' => $data['Email'],
-        //                'Department' => $data['Department'],
-        //                'Jabatan' => $data['Jabatan'],
-        //                'Status' => $data['Status'],
-        //                'Active' => 1,
-        //                'CreatedDate' => $data['CreatedDate'],
         try {
             $employee = Employee::findOrFail($id);
 

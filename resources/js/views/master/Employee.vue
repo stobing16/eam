@@ -2,13 +2,8 @@
     <div class="employee-page">
         <h1 class="page-title">Employee List</h1>
         <div class="search-bar">
-            <input
-                type="text"
-                class="form-control"
-                v-model="search"
-                @input="fetchEmployees"
-                placeholder="Search employees..."
-            />
+            <input type="text" class="form-control" v-model="search" @input="fetchEmployees"
+                placeholder="Search employees..." />
         </div>
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
@@ -209,7 +204,6 @@ export default {
             }
             this.showModal = true;
             this.isEditing = true;
-            this.showModal = true;
         },
 
         openCreateModal() {
@@ -338,97 +332,4 @@ export default {
 .employee-page {
     padding: 20px;
 }
-
-.page-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.search-bar {
-    margin-bottom: 20px;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th,
-.table td {
-    text-align: left;
-    padding: 10px;
-    border: 1px solid #dee2e6;
-}
-
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn {
-    margin-right: 5px;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-    transition: opacity 0.3s ease;
-}
-
-.modal-enter,
-.modal-leave-to
-
-/* .modal-leave-active in <2.1.8 */
-    {
-    opacity: 0;
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.modal-content {
-    background-color: white;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transform: scale(0.8);
-    transition: transform 0.3s ease-in-out;
-}
-
-/* Show the modal */
-.modal.show {
-    display: block;
-    opacity: 1;
-}
-
-.modal.show .modal-content {
-    transform: scale(1);
-}
-
-.close-btn {
-    color: red;
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
 </style>

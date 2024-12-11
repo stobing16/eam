@@ -29,6 +29,24 @@ class AuthController extends Controller
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
+    // public function refresh(Request $request): JsonResponse
+    // {
+    //     $user = Auth::user();
+    //     $request->user()->tokens()->delete();
+    //     $tokens = $this->service->generateTokens($user);
+
+    //     return $this->sendResponseWithTokens($tokens);
+    // }
+
+    public function logout(Request $request)
+    {
+        Auth::user()->tokens->each(function ($token) {
+            $token->delete();
+        });
+
+        return response()->json(['message' => 'Logged out successfully']);
+    }
+
     public function register(RegisterRequest $request)
     {
         $data = $request->validated();

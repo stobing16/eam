@@ -26,6 +26,6 @@ class Employee extends Model
 
     public static function getNextRowId()
     {
-        return Employee::max('RowId') + 1;
+        return parent::max('RowId') + 1;
     }
 }
