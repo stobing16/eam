@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Project\ProjectStoreRequest;
 use App\Http\Requests\Project\ProjectUpdateRequest;
+use App\Models\Api\Counter;
 use App\Models\Project;
 use Illuminate\Http\Request;
 
@@ -15,11 +16,21 @@ class ProjectController extends Controller
         $current_page = $request->input('current_page', 1);
         $search = $request->input('search');
 
-        $projects = Project::skip(($current_page - 1) * $page)->take($page)->get();
-        $totalItems = Project::count();
+        $query = Project::orderBy('ProjectName', 'asc');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('ProjectName', 'like', "%$search%");
+            });
+        }
+
+        $totalItems = $query->count();
+        $projects = $query
+            ->skip(($current_page - 1) * $page)
+            ->take($page)
+            ->get();
 
         $totalPages = ceil($totalItems / $page);
-
         $response = [
             'currentPage' => $current_page,
             'rowsPerPage' => $page,
@@ -33,19 +44,32 @@ class ProjectController extends Controller
     public function store(ProjectStoreRequest $request)
     {
         $data = $request->validated();
-
-        $data['RowId'] = Project::getNextRowId();
         $data['CreatedDate'] = date('Y-m-d H:i:s');
 
         try {
+
+            $ctrFormat = str_replace([' ', '-'], '', $data['name']);
+            $ctrFormat = (strlen($ctrFormat) > 2) ? strtoupper(substr($ctrFormat, 0, 2)) : $data['name'];
+
+            $counter = Counter::where('CounterId', 'PR')->first();
+            if ($counter) {
+                $counter->CounterNumber++;
+                $counter->save();
+
+                $count = $counter->CounterNumber;
+            } else {
+                $count = 1;
+            }
+
+            $code = $ctrFormat . $count;
+
             Project::create([
-                'RowId' => $data['RowId'],
-                'ProjectCode' => $data['code'],
+                'ProjectCode' => $code,
                 'ProjectName' => $data['name'],
-                'Status' => 'active',
-                'Active' =>  true,
                 'CreatedDate' => $data['CreatedDate'],
-                // 'CreatedBy' => Auth::user()->name
+                // 'CreatedBy' => Auth::user()->name,
+                'CreatedBy' => '1',
+                'LastUpdatedBy' => "1"
             ]);
 
             return response()->json([
@@ -66,12 +90,12 @@ class ProjectController extends Controller
         $data['LastUpdatedDate'] = date('Y-m-d H:i:s');
 
         try {
+
             $project = Project::findOrFail($id);
 
-            $project->ProjectCode = $data['code'];
             $project->ProjectName = $data['name'];
-            $project->Status = $data['status'] ? 'active' : 'inactive';
-            $project->Active = $data['status'] ? true : false;
+            $project->Status = $data['status'];
+            $project->Active = $data['status'] === 'A' ? 1 : 0;
             $project->LastUpdatedDate = $data['LastUpdatedDate'];
 
             $project->save();

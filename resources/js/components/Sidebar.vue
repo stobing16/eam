@@ -6,7 +6,6 @@
                 <img src="/assets/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image opacity-75 shadow">
                 <span class="brand-text fw-light">EAM</span>
             </router-link>
-
         </div>
 
         <!-- Sidebar Wrapper -->
@@ -14,34 +13,21 @@
             <nav class="mt-2">
                 <!-- Sidebar Menu -->
                 <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-                    <!-- <li class="nav-item">
-                        <router-link to="/employee" class="nav-link">
-                            <i class="bi bi-people-fill"></i>
-                            <p>Employee</p>
-                        </router-link>
-                    </li>
-                    <li class="nav-item">
-                        <router-link to="/asset-hirarki" class="nav-link">
-                            <i class="bi bi-people-fill"></i>
-                            <p>Asset Hirarki</p>
-                        </router-link>
-                    </li> -->
-
-
                     <li class="nav-item" v-for="(item, index) in dropdownItems" :key="index">
                         <a href="#" class="nav-link" @click.prevent="toggleDropdown(index)">
-                            <i class="bi bi-gear"></i>
-                            <p>{{ item.title }}</p>
-                            <i :class="dropdownOpen[index] ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
+                            <div class="d-flex justify-content-between w-100">
+                                <div>
+                                    <i class="bi" :class="[item.icon ? item.icon : 'bi-gear']"></i>
+                                    <p>{{ item.title }}</p>
+                                </div>
+                                <i :class="dropdownOpen[index] ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
+                            </div>
                         </a>
                         <ul v-show="dropdownOpen[index]" class="nav flex-column ms-3">
                             <li class="nav-item" v-for="(link, index) in item.menu" :key="index">
-                                <router-link :to="link.route" class="nav-link">{{ link.name }}</router-link>
+                                <router-link :to="link.route" class="nav-link"
+                                    :class="{ 'active-link': isActiveRoute(link.route) }">{{ link.name }}</router-link>
                             </li>
-                            <!-- <li class="nav-item">
-                                <router-link to="/sub-item-2" class="nav-link">Sub Item 2</router-link>
-                            </li> -->
-                            <!-- Add more sub-items as needed -->
                         </ul>
                     </li>
                 </ul>
@@ -52,29 +38,57 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
+// Data untuk dropdown items
 const dropdownItems = [
     {
         title: 'Master',
-        icon: 'icon',
+        icon: 'bi-database-fill',
         menu: [
-            {
-                route: '/employee',
-                name: 'Employee',
-            },
-            {
-                route: '/asset-hirarki',
-                name: 'Asset Hirarki',
-            },
+            { route: '/master/company', name: 'Company' },
+            { route: '/master/employee', name: 'Employee' },
+            { route: '/master/asset-hirarki', name: 'Asset Hirarki' },
+            { route: '/master/supplier', name: 'Supplier' },
+            { route: '/master/location', name: 'Location' },
+            { route: '/master/sub-location', name: 'Sub Location' },
+            { route: '/master/project', name: 'Project' },
         ]
     },
-    // { title: 'Reports' },
-    // Add more dropdown menu items as needed
+    {
+        title: 'Transaksi',
+        icon: '',
+        menu: [
+            { route: '/transaksi/asset', name: 'Asset' },
+        ]
+    }
 ];
+
+// State untuk dropdown terbuka
 const dropdownOpen = ref([]);
+
+// Fungsi untuk toggle dropdown
 const toggleDropdown = (index) => {
     dropdownOpen.value[index] = !dropdownOpen.value[index];
 };
+
+// Menggunakan Vue Router untuk mendapatkan route saat ini
+const route = useRoute();
+
+// Fungsi untuk memeriksa apakah rute aktif
+const isActiveRoute = (routeToCheck) => {
+    return route.path === routeToCheck;
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Gaya untuk item menu yang aktif */
+.active-link {
+    background-color: #007bff;
+    color: white;
+}
+
+.active-link:hover {
+    background-color: #0056b3;
+}
+</style>

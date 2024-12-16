@@ -75,7 +75,7 @@ class EmployeeController extends Controller
             Employee::create([
                 'RowId' => $data['RowId'],
                 'Nama' => $data['Nama'],
-                'NIK' => 0,
+                'NIK' => $data['nik'],
                 'Email' => $data['Email'],
                 'Department' => $data['Department'],
                 'Jabatan' => $data['Jabatan'],
@@ -102,13 +102,17 @@ class EmployeeController extends Controller
 
         try {
             foreach ($data as $value) {
+                // CHECK IF DATA WITH THIS NIK EXISTS
+                $isEmployeeExists = Employee::where('NIK', $value['nik'])->exists();
+                if ($isEmployeeExists) continue;
+
                 $value['RowId'] = Employee::getNextRowId();
                 $value['CreatedDate'] = date('Y-m-d H:i:s');
 
                 Employee::create([
                     'RowId' => $value['RowId'],
                     'Nama' => $value['name'],
-                    'NIK' => 0,
+                    'NIK' => $value['nik'],
                     'Email' => $value['email'],
                     'Department' => isset($value['department']) ? $value['department'] : null,
                     'Jabatan' => $value['jabatan'],

@@ -11,7 +11,7 @@ class LocationUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,7 @@ class LocationUpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255',
+            'status' => 'required',
             'is_location' => 'required',
             'is_project_location' => 'required',
         ];

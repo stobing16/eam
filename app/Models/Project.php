@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     use HasFactory;
-    protected $table = 'MsCompany';
+    protected $table = 'MsProject';
     protected $primaryKey = 'RowId';
     public $timestamps = false;
 
@@ -19,7 +19,8 @@ class Project extends Model
         'Status',
         'Active',
         'CreatedDate',
-        'CreatedBy'
+        'CreatedBy',
+        'LastUpdatedBy'
     ];
 
     public static function getNextRowId()

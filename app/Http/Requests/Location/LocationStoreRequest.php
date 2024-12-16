@@ -23,7 +23,6 @@ class LocationStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255',
             'is_location' => 'required',
             'is_project_location' => 'required',
         ];

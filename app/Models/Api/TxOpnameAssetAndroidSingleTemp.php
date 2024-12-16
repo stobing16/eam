@@ -11,4 +11,12 @@ class TxOpnameAssetAndroidSingleTemp extends Model
     protected $table = 'TxOpnameAssetAndroidSingleTemp';
     protected $primaryKey = 'RowId';
     public $timestamps = false;
+
+    protected $fillable = [
+        'OpnameOrderId',
+        'Barcode',
+        'Condition',
+        'CreatedBy',
+        'CreatedDate',
+    ];
 }

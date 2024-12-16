@@ -22,7 +22,8 @@ class Location extends Model
         'Status',
         'Active',
         'CreatedDate',
-        'CreatedBy'
+        'CreatedBy',
+        'LastUpdatedBy',
     ];
 
     public static function getNextRowId()

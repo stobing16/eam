@@ -2,6 +2,7 @@
 
 namespace App\Models\Api;
 
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -38,5 +39,25 @@ class Asset extends Model
     public static function getNextRowId()
     {
         return parent::max('RowId') + 1;
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'CompanyCode', 'CompanyId');
+    }
+
+    public function assetModel()
+    {
+        return $this->belongsTo(ModelAsset::class, 'ModelCode', 'ModelCode');
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(ModelAsset::class, 'SupplierCode', 'SupplierCode');
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(ModelAsset::class, 'LocationCode', 'LocationCode');
     }
 }

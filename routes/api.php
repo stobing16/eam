@@ -12,6 +12,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SubLocationController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,16 +36,18 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 });
+Route::prefix('transaksi')->group(function () {
+    Route::get('/assets', [AssetController::class, 'index']);
+    Route::post('/assets', [AssetController::class, 'saveAsset']);
+    Route::patch('/assets', [AssetController::class, 'updateAsset']);
+    Route::post('/assets/checkin', [AssetController::class, 'checkIn']);
+    Route::post('/assets/checkout', [AssetController::class, 'checkOut']);
 
-Route::post('/assets', [AssetController::class, 'saveAsset'])->name('assets.save');
-Route::patch('/assets', [AssetController::class, 'updateAsset'])->name('assets.update');
-Route::post('/assets/checkin', [AssetController::class, 'checkIn'])->name('assets.checkin');
-Route::post('/assets/checkout', [AssetController::class, 'checkOut'])->name('assets.checkout');
-
-Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
-Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
-Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
-Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+    Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
+    Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
+    Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
+    Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+});
 
 // MASTER
 
@@ -91,10 +94,10 @@ Route::post('/location', [LocationController::class, 'store'])->name('locations.
 Route::patch('/location/{id}', [LocationController::class, 'update'])->name('locations.update');
 Route::delete('/location/{id}', [LocationController::class, 'delete'])->name('locations.delete');
 
-Route::get('/sub-location', [LocationController::class, 'index'])->name('sub-locations');
-Route::post('/sub-location', [LocationController::class, 'store'])->name('sub-locations.store');
-Route::patch('/sub-location/{id}', [LocationController::class, 'update'])->name('sub-locations.update');
-Route::delete('/sub-location/{id}', [LocationController::class, 'delete'])->name('sub-locations.delete');
+Route::get('/sub-location', [SubLocationController::class, 'index'])->name('sub-locations');
+Route::post('/sub-location', [SubLocationController::class, 'store'])->name('sub-locations.store');
+Route::patch('/sub-location/{id}', [SubLocationController::class, 'update'])->name('sub-locations.update');
+Route::delete('/sub-location/{id}', [SubLocationController::class, 'delete'])->name('sub-locations.delete');
 
 Route::get('/project', [ProjectController::class, 'index'])->name('projects');
 Route::post('/project', [ProjectController::class, 'store'])->name('projects.store');
@@ -107,3 +110,5 @@ Route::patch('/project/{id}', [ProjectController::class, 'update'])->name('proje
 Route::delete('/project/{id}', [ProjectController::class, 'delete'])->name('projects.delete');
 
 Route::get('/android/opname-list', [AssetOpnameSingleController::class, 'getOpnameOrderAndroidList']);
+Route::get('/android/opname-list/barcode', [AssetOpnameSingleController::class, 'getOpnameOrderAndroidDetailList']);
+Route::post('/android/opname-list', [AssetOpnameSingleController::class, 'saveAsset']);

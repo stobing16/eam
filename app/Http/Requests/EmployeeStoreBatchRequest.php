@@ -28,7 +28,7 @@ class EmployeeStoreBatchRequest extends FormRequest
             '*.name' => 'required|string|max:255',
             '*.email' => 'required|email|max:255',
             '*.jabatan' => 'nullable',
-            '*.nik' => 'nullable',
+            '*.nik' => 'required|string|max:255',
             '*.status' => 'nullable',
         ];
     }

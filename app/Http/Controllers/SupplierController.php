@@ -4,22 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Supplier\SupplierStoreRequest;
 use App\Http\Requests\Supplier\SupplierUpdateRequest;
+use App\Models\Api\Counter;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
 {
     public function index(Request $request)
     {
-        $page = $request->input('per_page', 10);
-        $current_page = $request->input('current_page', 1);
-        $search = $request->input('search');
+        $page = (int) $request->input('per_page', 10);
+        $current_page = (int) $request->input('current_page', 1);
+        $search = $request->input('search', '');
 
-        $suppliers = Supplier::skip(($current_page - 1) * $page)->take($page)->get();
-        $totalItems = Supplier::count();
+        $query = Supplier::orderBy('SupplierName', 'asc');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('SupplierName', 'like', "%$search%");
+            });
+        }
+
+        $totalItems = $query->count();
+
+        $suppliers = $query
+            ->skip(($current_page - 1) * $page)
+            ->take($page)
+            ->get();
 
         $totalPages = ceil($totalItems / $page);
-
         $response = [
             'currentPage' => $current_page,
             'rowsPerPage' => $page,
@@ -34,28 +47,44 @@ class SupplierController extends Controller
     {
         $data = $request->validated();
 
-        $data['RowId'] = Supplier::getNextRowId();
         $data['CreatedDate'] = date('Y-m-d H:i:s');
 
+        DB::beginTransaction();
         try {
+            $ctrFormat = str_replace([' ', '-'], '', $data['name']);
+            $ctrFormat = (strlen($ctrFormat) > 2) ? strtoupper(substr($ctrFormat, 0, 2)) : $data['name'];
+
+            $counter = Counter::where('CounterId', 'SP')->first();
+            if ($counter) {
+                $counter->CounterNumber++;
+                $counter->save();
+
+                $count = $counter->CounterNumber;
+            } else {
+                $count = 1;
+            }
+
+            $code = $ctrFormat . $count;
+
             Supplier::create([
-                'RowId' => $data['RowId'],
-                'SupplierCode' => $data['code'],
+                'SupplierCode' => $code,
                 'SupplierName' => $data['name'],
                 'Phone' => $data['phone'],
                 'Mobile' => $data['mobile'],
                 'Address' => $data['address'],
-                'Status' => 'active',
-                'Active' =>  true,
                 'CreatedDate' => $data['CreatedDate'],
                 // 'CreatedBy' => Auth::user()->name
+                'CreatedBy' => "1",
+                'LastUpdatedBy' => "1",
             ]);
 
+            DB::commit();
             return response()->json([
                 'success' => true,
                 'message' => 'Supplier created successfully!'
             ], 201);
         } catch (\Throwable $th) {
+            DB::rollback();
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()
@@ -71,14 +100,13 @@ class SupplierController extends Controller
         try {
             $supplier = Supplier::findOrFail($id);
 
-            $supplier->SupplierCode = $data['code'];
             $supplier->SupplierName = $data['name'];
             $supplier->Phone = $data['phone'];
             $supplier->Mobile = $data['mobile'];
             $supplier->Address = $data['address'];
 
-            $supplier->Status = $data['status'] ? 'active' : 'inactive';
-            $supplier->Active = $data['status'] ? true : false;
+            $supplier->Status = $data['status'];
+            $supplier->Active = $data['status'] === 'A' ? 1 : 0;
             $supplier->LastUpdatedDate = $data['LastUpdatedDate'];
 
             $supplier->save();

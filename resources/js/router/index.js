@@ -15,22 +15,86 @@ const routes = [
         component: () => import('../views/Dashboard.vue')
     },
     {
-        path: '/employee',
-        meta: {
-            layout: AppLayout,
-            requiresAuth: true
-        },
-        name: 'employee',
-        component: () => import('../views/master/Employee.vue')
+        path: '/master',
+        children: [
+            {
+                path: 'employee',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'employee',
+                component: () => import('../views/master/Employee.vue')
+            },
+            {
+                path: 'company',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'company',
+                component: () => import('../views/master/Company.vue')
+            },
+            {
+                path: 'supplier',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'supplier',
+                component: () => import('../views/master/Supplier.vue')
+            },
+            {
+                path: 'location',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'location',
+                component: () => import('../views/master/Location.vue')
+            },
+            {
+                path: 'sub-location',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'sub-location',
+                component: () => import('../views/master/SubLocation.vue')
+            },
+            {
+                path: 'project',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'project',
+                component: () => import('../views/master/Project.vue')
+            },
+            {
+                path: 'asset-hirarki',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'asset-hirarki',
+                component: () => import('../views/master/AssetHirarki.vue')
+            },
+        ]
     },
     {
-        path: '/asset-hirarki',
-        meta: {
-            layout: AppLayout,
-            requiresAuth: true
-        },
-        name: 'asset-hirarki',
-        component: () => import('../views/master/AssetHirarki.vue')
+        path: '/transaksi',
+        children: [
+            {
+                path: 'asset',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'asset',
+                component: () => import('../views/transaksi/Asset.vue')
+            },
+        ]
     },
     {
         path: '/login',

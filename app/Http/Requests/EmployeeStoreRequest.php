@@ -23,6 +23,7 @@ class EmployeeStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'nik' => 'required|string|max:15',
             'Nama' => 'required|string|max:255',
             'Email' => 'required|email|max:255',
             'Jabatan' => 'nullable',

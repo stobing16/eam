@@ -33,6 +33,15 @@ class AssetOpnameSingleController extends Controller
         return response()->json($res);
     }
 
+    public function getOpnameOrderAndroidDetailList(Request $request)
+    {
+        $barcode = $request->input('barcode');
+        // Log::debug(json_encode([$barcode, $id]));
+
+        $res = DB::select("EXEC RetrieveBarcodeCheck @Barcode = :code", ['code' => $barcode]);
+        return response()->json($res);
+    }
+
     public function saveAsset(Request $request)
     {
         $request->validate([
@@ -41,15 +50,30 @@ class AssetOpnameSingleController extends Controller
             'condition' => 'required',
         ]);
 
-        $barcode = trim($request->barcode);
-        $opname = TxOpnameAssetAndroidSingleTemp::where('Barcode', $barcode)->andWhere('OpnameOrderId', $request->opname)->exists();
-        if (!$opname) {
-            TxOpnameAssetAndroidSingleTemp::create([
-                'OpnameOrderId' => $request->opname,
-                'Barcode' => $barcode,
-                'Condition' => $request->condition,
-                'Created' => ''
-            ]);
+        try {
+
+            $barcode = trim($request->barcode);
+            $opname = TxOpnameAssetAndroidSingleTemp::where('Barcode', $barcode)->where('OpnameOrderId', $request->opname)->doesntExist();
+            Log::debug($opname);
+            if ($opname) {
+                TxOpnameAssetAndroidSingleTemp::create([
+                    'OpnameOrderId' => $request->opname,
+                    'Barcode' => $barcode,
+                    'Condition' => $request->condition,
+                    'CreatedDate' => date('Y-m-d H:i:s'),
+                    'CreatedBy' => 'yocky'
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset Opname created successfully!'
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
         }
     }
 }

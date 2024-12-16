@@ -23,7 +23,6 @@ class SupplierUpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'mobile' => 'required|string|max:255',
             'address' => 'required|string',

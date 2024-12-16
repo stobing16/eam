@@ -11,16 +11,58 @@ use App\Models\Api\SudahPrint;
 use App\Models\Api\TxCheckIn;
 use App\Models\Api\TxCheckOut;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AssetController extends Controller
 {
-
-    public function index()
+    public function index(Request $request)
     {
-        $results = DB::select('EXEC GetAssetList');
-        return response()->json($results);
+
+        $data = Asset::with('company', 'assetModel')->paginate(1);
+        Log::debug($data);
+        die();
+
+        $data = DB::select('EXEC GetAssetList');
+
+        foreach ($data as $item) {
+            if (isset($item->AssetImage)) {
+                $item->AssetImage = base64_encode($item->AssetImage);
+            }
+        }
+
+        $currentPage = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
+
+        $paginator = $this->paginateArray($data, $perPage, $currentPage);
+        $response = [
+            'data' => $paginator->items(),
+            'current_page' => $paginator->currentPage(),
+            'per_page' => $paginator->perPage(),
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+            'from' => $paginator->firstItem(),
+            'to' => $paginator->lastItem(),
+        ];
+
+        return response()->json($response);
+    }
+
+    private function paginateArray($items, $perPage, $currentPage)
+    {
+        return new LengthAwarePaginator(
+            array_slice($items, ($currentPage - 1) * $perPage, $perPage),
+            count($items),
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
     }
 
     public function saveAsset(Request $request)

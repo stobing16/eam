@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     use HasFactory;
-    protected $table = 'MsCompany';
+    protected $table = 'MsSupplier';
     protected $primaryKey = 'RowId';
     public $timestamps = false;
 
@@ -22,7 +22,8 @@ class Supplier extends Model
         'Status',
         'Active',
         'CreatedDate',
-        'CreatedBy'
+        'CreatedBy',
+        'LastUpdatedBy',
     ];
 
     public static function getNextRowId()

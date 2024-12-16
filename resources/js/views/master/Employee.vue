@@ -1,6 +1,13 @@
 <template>
     <div class="employee-page">
         <h1 class="page-title">Employee List</h1>
+        <!-- Button to trigger the modal to create a new employee -->
+        <div class="d-flex gap-2 mb-3 justify-content-end">
+            <button class="btn btn-primary" @click="openCreateModal">Create Employee</button>
+            <button class="btn btn-primary" @click="openExcelCreateModal">Import Excel</button>
+            <!-- <button class="btn btn-primary" @click="download">Download template Excel</button> -->
+        </div>
+
         <div class="search-bar">
             <input type="text" class="form-control" v-model="search" @input="fetchEmployees"
                 placeholder="Search employees..." />
@@ -47,13 +54,6 @@
             </button>
         </div>
 
-        <!-- Button to trigger the modal to create a new employee -->
-        <div class="d-flex gap-2">
-            <button class="btn btn-primary" @click="openCreateModal">Create Employee</button>
-            <button class="btn btn-primary" @click="openExcelCreateModal">Export Excel</button>
-        </div>
-
-
         <div class="modal" tabindex="-1" :class="{ show: showModal }" style="display: block;" v-if="showModal">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -62,6 +62,10 @@
                         <button type="button" class="btn-close" @click="closeModal"></button>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name">NIK</label>
+                            <input type="text" id="name" class="form-control" v-model="selectedEmployee.nik" />
+                        </div>
                         <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" id="name" class="form-control" v-model="selectedEmployee.Nama" />
@@ -152,6 +156,7 @@ export default {
             showModal: false,
             showModalExcel: false,
             selectedEmployee: {
+                nik: "",
                 Nama: "",
                 Department: "",
                 Jabatan: "",
