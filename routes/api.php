@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Master\ModelAssetController;
 use App\Http\Controllers\Api\Transaction\AssetController;
 use App\Http\Controllers\Api\Transaction\OpnameController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarcodeCollectingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LocationController;
@@ -47,6 +48,10 @@ Route::prefix('transaksi')->group(function () {
     Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
     Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
     Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+});
+
+Route::prefix('report')->group(function() {
+    Route::get('/barcode-collecting', [BarcodeCollectingController::class, 'index']);
 });
 
 // MASTER
@@ -112,3 +117,4 @@ Route::delete('/project/{id}', [ProjectController::class, 'delete'])->name('proj
 Route::get('/android/opname-list', [AssetOpnameSingleController::class, 'getOpnameOrderAndroidList']);
 Route::get('/android/opname-list/barcode', [AssetOpnameSingleController::class, 'getOpnameOrderAndroidDetailList']);
 Route::post('/android/opname-list', [AssetOpnameSingleController::class, 'saveAsset']);
+
