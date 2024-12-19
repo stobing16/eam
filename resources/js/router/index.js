@@ -97,6 +97,20 @@ const routes = [
         ]
     },
     {
+        path: '/report',
+        children: [
+            {
+                path: 'barcode-collecting',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'barcode-collecting',
+                component: () => import('../views/report/BarcodeCollecting.vue')
+            },
+        ]
+    },
+    {
         path: '/login',
         meta: { layout: AuthLayout },
         name: 'login',

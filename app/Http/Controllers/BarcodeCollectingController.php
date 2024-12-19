@@ -11,17 +11,25 @@ class BarcodeCollectingController extends Controller
     public function index(Request $request)
     {
         $data = DB::select('EXEC BarcodeCollectingReport');
+        $dataCollection = collect($data);
 
-        $currentPage = $request->input('page', 1);
+        if ($request->has('asset_code')) {
+            $assetCode = $request->input('asset_code');
+            $dataCollection = $dataCollection->filter(function ($item) use ($assetCode) {
+                return str_contains($item->AssetCode, $assetCode);
+            });
+        }
+
+        $currentPage = $request->input('current_page', 1);
         $perPage = $request->input('per_page', 10);
 
-        $paginator = $this->paginateArray($data, $perPage, $currentPage);
+        $paginator = $this->paginateArray($dataCollection->toArray(), $perPage, $currentPage);
         $response = [
             'data' => $paginator->items(),
-            'current_page' => $paginator->currentPage(),
-            'per_page' => $paginator->perPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
+            'currentPage' => $paginator->currentPage(),
+            'rowsPerPage' => $paginator->perPage(),
+            'totalPages' => $paginator->total(),
+            'lastPage' => $paginator->lastPage(),
             'from' => $paginator->firstItem(),
             'to' => $paginator->lastItem(),
         ];
