@@ -108,6 +108,15 @@ const routes = [
                 name: 'barcode-collecting',
                 component: () => import('../views/report/BarcodeCollecting.vue')
             },
+            {
+                path: 'asset-log-history',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'asset-log-history',
+                component: () => import('../views/report/AssetLogHistory.vue')
+            },
         ]
     },
     {
