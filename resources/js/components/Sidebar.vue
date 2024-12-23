@@ -63,6 +63,25 @@ const dropdownItems = [
             { route: '/transaksi/opname-order', name: 'Opname Order' },
             { route: '/transaksi/asset-movement', name: 'Asset Movement' },
         ]
+    },
+    {
+        title: 'Report',
+        icon: '',
+        menu: [
+            { route: '/report/barcode-collecting', name: 'Custom Report' },
+            { route: '/report/dispose', name: 'Dispose' },
+            { route: '/report/asset-log-history', name: 'Asset Log History' },
+            { route: '/report/barcode-printing', name: 'Barcode Printing' },
+            { route: '/report/check-out-history', name: 'Check Out History by User' },
+            { route: '/report/asset-opname-result', name: 'Asset Opname Result' },
+            { route: '/report/all-asset', name: 'All Asset' },
+            { route: '/report/asset-type-sumary', name: 'Asset Type Sumary' },
+            { route: '/report/opname-result-temporary', name: 'Opname Result Temporary' },
+            { route: '/report/asset-by-date', name: 'Asset By Date' },
+            { route: '/report/all-asset-detal', name: 'All Asset Detail' },
+            { route: '/report/existing-asset-checkout-by-user', name: 'Existing Asset CheckOut by User' },
+            { route: '/report/barcode-collecting', name: 'Barcode Collection' },
+        ]
     }
 ];
 

@@ -170,6 +170,38 @@ const routes = [
         ]
     },
     {
+        path: '/report',
+        children: [
+            {
+                path: 'barcode-collecting',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'barcode-collecting',
+                component: () => import('../views/report/BarcodeCollecting.vue')
+            },
+            {
+                path: 'asset-log-history',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'asset-log-history',
+                component: () => import('../views/report/AssetLogHistory.vue')
+            },
+            {
+                path: 'barcode-printing',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'barcode-printing',
+                component: () => import('../views/report/BarcodePrinting.vue')
+            },
+        ]
+    },
+    {
         path: '/login',
         meta: { layout: AuthLayout },
         name: 'login',
