@@ -117,6 +117,15 @@ const routes = [
                 name: 'asset-log-history',
                 component: () => import('../views/report/AssetLogHistory.vue')
             },
+            {
+                path: 'barcode-printing',
+                meta: {
+                    layout: AppLayout,
+                    requiresAuth: true
+                },
+                name: 'barcode-printing',
+                component: () => import('../views/report/BarcodePrinting.vue')
+            },
         ]
     },
     {

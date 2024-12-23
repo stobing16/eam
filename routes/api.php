@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Master\ModelAssetController;
 use App\Http\Controllers\Api\Transaction\AssetController;
 use App\Http\Controllers\Api\Transaction\OpnameController;
 use App\Http\Controllers\Api\Report\AssetLogHistoryController;
+use App\Http\Controllers\Api\Report\BarcodePrintingController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarcodeCollectingController;
 use App\Http\Controllers\CompanyController;
@@ -54,6 +55,7 @@ Route::prefix('transaksi')->group(function () {
 Route::prefix('report')->group(function() {
     Route::get('/barcode-collecting', [BarcodeCollectingController::class, 'index']);
     Route::get('/asset-log-history', [AssetLogHistoryController::class, 'index']);
+    Route::get('/barcode-printing', [BarcodePrintingController::class, 'index']);
 });
 
 // MASTER
