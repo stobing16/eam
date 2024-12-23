@@ -42,8 +42,16 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import Sidebar from '../components/Sidebar.vue';
+import { nextTick, onMounted } from 'vue';
 
 const router = useRouter()
+
+onMounted(() => {
+    nextTick(() => {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    });
+})
 
 const logout = async () => {
     localStorage.removeItem('token');

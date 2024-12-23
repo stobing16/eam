@@ -7,9 +7,16 @@ use App\Models\Api\Asset;
 use App\Models\Api\AssetType;
 use App\Models\Api\Counter;
 use App\Models\Api\ModelAsset;
+use App\Models\Api\PickList;
 use App\Models\Api\SudahPrint;
 use App\Models\Api\TxCheckIn;
 use App\Models\Api\TxCheckOut;
+use App\Models\Company;
+use App\Models\Employee;
+use App\Models\Location;
+use App\Models\Project;
+use App\Models\SubLocation;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -21,212 +28,217 @@ class AssetController extends Controller
 {
     public function index(Request $request)
     {
+        $page = (int) $request->input('per_page', 10);
+        $current_page = (int) $request->input('current_page', 1);
+        $search = $request->input('search', '');
 
-        $data = Asset::with('company', 'assetModel')->paginate(1);
-        Log::debug($data);
-        die();
+        // $data = $this->getAssetList();
 
-        $data = DB::select('EXEC GetAssetList');
-
-        foreach ($data as $item) {
-            if (isset($item->AssetImage)) {
-                $item->AssetImage = base64_encode($item->AssetImage);
+        $data = Asset::whereHas('assetStatus', function ($query) {
+            $query->whereIn('ChildId', ['A', 'CO']);
+        })->with([
+            'assetModel.brand',
+            'txCheckout.createdPerson',
+            'txCheckout.txCheckIn',
+            'company' => function ($query) {
+                $query->select('CompanyId', 'CompanyName');
+            },
+            'supplier' => function ($query) {
+                $query->select('SupplierCode', 'SupplierName');
+            },
+            'location' => function ($query) {
+                $query->select('LocationCode', 'LocationName');
+            },
+            'assetStatus' => function ($query) {
+                $query->select('ChildId', 'PlDescription')->whereIn('ChildId', ["A", "CO"]);
+            },
+            'assetCondition' => function ($query) {
+                $query->select('ChildId', 'PlDescription');
             }
+        ]);
+
+        if (!empty($search)) {
+            $data->where(function ($q) use ($search) {
+                $q->where('AssetName', 'like', "%$search%")
+                    ->orWhere('AssetCode', 'like', "%$search%");
+            });
         }
+        $totalItems = $data->count();
 
-        $currentPage = $request->input('page', 1);
-        $perPage = $request->input('per_page', 10);
+        $asset = $data
+            ->skip(($current_page - 1) * $page)
+            ->take($page)
+            ->get();
 
-        $paginator = $this->paginateArray($data, $perPage, $currentPage);
+        $totalPages = ceil($totalItems / $page);
+
         $response = [
-            'data' => $paginator->items(),
-            'current_page' => $paginator->currentPage(),
-            'per_page' => $paginator->perPage(),
-            'total' => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
-            'from' => $paginator->firstItem(),
-            'to' => $paginator->lastItem(),
+            'currentPage' => $current_page,
+            'rowsPerPage' => $page,
+            'totalPages' => $totalPages,
+            'data' => $asset,
         ];
 
         return response()->json($response);
     }
 
-    private function paginateArray($items, $perPage, $currentPage)
+    public function getFormDataList(Request $request)
     {
-        return new LengthAwarePaginator(
-            array_slice($items, ($currentPage - 1) * $perPage, $perPage),
-            count($items),
-            $perPage,
-            $currentPage,
-            [
-                'path' => request()->url(),
-                'query' => request()->query(),
+        $companies = Company::select('RowId', 'CompanyName', 'CompanyId', 'Active')->where('Active', 1)->get();
+        $condition = PickList::select('RowId', 'ChildId', 'PlDescription', 'ParentId')->where('ParentId', 2)->get();
+        $model = ModelAsset::with('brand')->get();
+        $supplier = Supplier::select('RowId', 'SupplierCode', 'SupplierName')->get();
+        $userReceived = Employee::select('RowId', 'NIK', 'Nama')->get();
+        $location = Location::select('RowId', 'LocationCode', 'LocationName')->get();
+        $subLocation = SubLocation::select('RowId', 'SubLocationCode', 'SubLocationName')->get();
+        $employee = Employee::select('RowId', 'NIK', 'Nama')->get();
+        $project = Project::select('RowId', 'ProjectCode', 'ProjectName')->get();
+
+        $response = [
+            'data' => [
+                'companies' => $companies,
+                'condition' => $condition,
+                'model' => $model,
+                'supplier' => $supplier,
+                'user_received' => $userReceived,
+                'location' => $location,
+                'subLocation' => $subLocation,
+                'employee' => $employee,
+                'project' => $project,
             ]
-        );
+        ];
+        return response()->json($response);
     }
 
     public function saveAsset(Request $request)
     {
         $request->validate([
-            'company_code' => 'required',
-            'model_code' => 'required',
-            'category_code' => 'required',
+            'company' => 'required',
+            'model' => 'required',
+            'category' => 'required',
             'condition' => 'required',
-            'serial_number' => 'required',
-            'name' => 'required|string|max:255',
-            'purchase_date' => 'required',
-            'supplier_code' => 'required',
-            'order_number' => 'required',
-            'purchase_cost' => 'required',
+            'serialNumber' => 'required',
+            'assetName' => 'required|string|max:255',
+            'purchaseDate' => 'required',
+            'supplier' => 'required',
+            'orderNumber' => 'required',
+            'purchaseCost' => 'required|numeric',
             'warranty' => 'required|numeric',
-            'received_by' => 'required',
-            'location_code' => 'required',
-            'qty' => 'required|numeric',
+            'receivedBy' => 'required',
+            'location' => 'required',
+            'quantity' => 'required|numeric',
             'notes' => 'nullable',
         ]);
 
 
         DB::beginTransaction();
         try {
-            $is_asset_exists = Asset::where('AssetCode', $request->asset_code)->exists();
-            // Jika Asset sudah ada, maka update data
-            if ($is_asset_exists) {
-                DB::table('MsAsset')
-                    ->where('AssetCode', $request->asset_code)
-                    ->update([
-                        'Condition' => $request->condition,
-                        'SerialNumber' => $request->serial_number,
-                        'AssetName' => $request->asset_name,
-                        'AssetCategoryCode' => $request->category_code,
-                        'PurchaseDate' => $request->purchase_date,
-                        'SupplierCode' => $request->supplier_code,
-                        'OrderNumber' => $request->order_number,
-                        'Warranty' => $request->warranty,
-                        'Notes' => $request->notes,
-                        'Status' => $request->status ? 'A' : 'I',
-                        'Active' => $request->status,
-                        'ReceivedBy' => $request->received_by,
-                        'LastUpdatedBy' => Auth::user()->id,
-                        'LastUpdatedDate' => date('Y-m-d H:i:s'),
-                    ]);
+            $count = 0;
 
-                DB::commit();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Asset updated successfully!'
-                ], 201);
-            }
-            // Jika Tidak, Maka insert data baru
-            else {
-                $count = 0;
+            while ($count < $request->quantity) {
+                $assetTypeCode = ModelAsset::select('AssetTypeCode', 'ModelCode')->where('ModelCode', $request->model)->firstOrFail();
+                $alias = AssetType::select('Alias')->where('AssetTypeCode', $assetTypeCode->AssetTypeCode)->firstOrFail();
 
-                while ($count < $request->qty) {
-                    $assetTypeCode = ModelAsset::select('AssetTypeCode')->where('ModelCode', $request->model_code)->firstOrFail();
-                    $alias = AssetType::select('Alias')->where('AssetTypeCode', $assetTypeCode)->firstOrFail();
+                $year = '/' . date('Y');
+                $month = date('m');
+                $month = (strlen($month) == 1) ? '/0' . $month : '/' . $month;
 
-                    $year = '/' . date('Y');
-                    $month = date('m');
-                    $month = (strlen($month) == 1) ? '/0' . $month : '/' . $month;
+                // GENERATE COUNTER NUMBER BARU TIAP TAHUN NYA
+                $assetCodeBase = $request->company . '/' . $alias->Alias . $month . $year;
+                $counter = Counter::select(['CounterNumber', 'Other'])->where('CounterId', 'AST')->firstOrFail();
 
-                    // GENERATE COUNTER NUMBER BARU TIAP TAHUN NYA
-                    $assetCodeBase = $request->company_code . '/' . $alias . $month . $year;
-                    $counter = Counter::select(['CounterNumber', 'Other'])->where('CounterId', 'AST')->firstOrFail();
+                $iCtr = $counter->CounterNumber;
+                $yearCounter = $counter->Other;
 
-                    $iCtr = $counter->CounterNumber;
-                    $yearCounter = $counter->Other;
-
-                    // Cek apakah tahun counter berubah
-                    if ($yearCounter != str_replace('/', '', $year)) {
-                        $iCtr = 0;
-                        $iCtr++;
-                        $counter->CounterNumber = $iCtr;
-                        $counter->Other = str_replace('/', '', $year);
-                    } else {
-                        $iCtr++;
-                        $counter->CounterNumber = $iCtr;
-                    }
-
-                    $counter->save();
-                    // END GENERATE COUNTER NUMBER
-
-                    // GENERATE ASSET CODE
-                    $paramLen = 5;
-                    if (strlen($iCtr) == $paramLen) {
-                        $AssetCode = $assetCodeBase . '/' . $iCtr;
-                    } else {
-                        $iNol = str_pad($iCtr, $paramLen, '0', STR_PAD_LEFT);
-                        $AssetCode = $assetCodeBase . '/' . $iNol;
-                    }
-                    // END GENERATE ASSET CODE
-
-                    // SAVE ASSET
-                    Asset::create([
-                        'RowId' =>  Asset::getNextRowId(),
-                        'CompanyCode' => $request->company_code,
-                        'ModelCode' => $request->model_code,
-                        'Condition' => $request->condition,
-                        'AssetBarcode' => $AssetCode,
-                        'AssetCode' => $AssetCode,
-                        'SerialNumber' => $request->serial_number,
-                        'AssetName' => $request->asset_name,
-                        'AssetCategoryCode' => $request->category_code,
-                        'PurchaseDate' => $request->purchase_date,
-                        'SupplierCode' => $request->supplier_code,
-                        'OrderNumber' => $request->order_number,
-                        'PurchaseCost' => $request->purchase_cost,
-                        'Warranty' => $request->warranty,
-                        'Notes' => $request->notes,
-                        'LocationCode' => $request->location_code,
-                        'Status' => $request->status ? 'A' : 'I',
-                        'Active' => $request->status,
-                        'CreatedBy' => Auth::user()->id,
-                        'ReceivedBy' => $request->received_by,
-                        'CreatedDate' => date('Y-m-d H:i:s'),
-                        // 'LastUpdatedBy' => '',
-                        // 'LastUpdatedDate' => '1900-01-01',
-                        // 'AssetImage' => $request['ImageFile'],
-                    ]);
-                    // END SAVE ASSET
-
-                    SudahPrint::create([
-                        'Barcode' => $AssetCode,
-                        'CreatedDate' => date('Y-m-d H:i:s'),
-                        'Status' => 0
-                    ]);
-
-                    $check_in_code = 'CKI';
-
-                    $counterCKI = Counter::select('CounterNumber')->where('CounterId', $check_in_code)->firstOrfail();
-                    $counterCKI->CountNumber = $counterCKI->CountNumber + 1;
-
-                    $check_in_code = $counterCKI->CountNumber;
-                    $counterCKI->save();
-
-                    TxCheckIn::create([
-                        'RowId' => TxCheckIn::getNextRowId(),
-                        'CheckInCode' => $check_in_code,
-                        'CheckOutCode' => '',
-                        'AssetCode' => $AssetCode,
-                        'Condition' => $request->condition,
-                        'CheckInDate' => date('Y-m-d H:i:s'),
-                        'Notes' => $request->notes,
-                        'Active' => 'A',
-                        'Status' => true,
-                        'CreatedBy' => Auth::user()->id,
-                        'CreatedDate' => date('Y-m-d H:i:s'),
-                        'DeliveredBy' => '',
-                        'ReceivedBy' => $request->received_by,
-                        'CheckInLocation' => $request->location_code
-                    ]);
-
-                    $count++;
+                // Cek apakah tahun counter berubah
+                if ($yearCounter != str_replace('/', '', $year)) {
+                    $iCtr = 0;
+                    $iCtr++;
+                    $counter->CounterNumber = $iCtr;
+                    $counter->Other = str_replace('/', '', $year);
+                } else {
+                    $iCtr++;
+                    $counter->CounterNumber = $iCtr;
                 }
-                DB::commit();
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Asset created successfully!'
-                ], 201);
+
+                $counter->save();
+                // END GENERATE COUNTER NUMBER
+
+                // GENERATE ASSET CODE
+                $paramLen = 5;
+                if (strlen($iCtr) == $paramLen) {
+                    $AssetCode = $assetCodeBase . '/' . $iCtr;
+                } else {
+                    $iNol = str_pad($iCtr, $paramLen, '0', STR_PAD_LEFT);
+                    $AssetCode = $assetCodeBase . '/' . $iNol;
+                }
+                // END GENERATE ASSET CODE
+
+                // SAVE ASSET
+                Asset::create([
+                    'CompanyCode' => $request->company,
+                    'ModelCode' => $request->model,
+                    'Condition' => $request->condition,
+                    'AssetBarcode' => $AssetCode,
+                    'AssetCode' => $AssetCode,
+                    'SerialNumber' => $request->serialNumber,
+                    'AssetName' => $request->assetName,
+                    'AssetCategoryCode' => $request->category,
+                    'PurchaseDate' => $request->purchaseDate,
+                    'SupplierCode' => $request->supplier,
+                    'OrderNumber' => $request->orderNumber,
+                    'PurchaseCost' => $request->purchaseCost,
+                    'Warranty' => $request->warranty,
+                    'Notes' => $request->notes,
+                    'LocationCode' => $request->location,
+                    // 'CreatedBy' => Auth::user()->id,
+                    'CreatedBy' => 'yocky',
+                    'ReceivedBy' => $request->receivedBy,
+                    'CreatedDate' => date('Y-m-d H:i:s'),
+                    'LastUpdatedBy' => '1',
+                ]);
+                // END SAVE ASSET
+
+                SudahPrint::create([
+                    'Barcode' => $AssetCode,
+                    'CreatedDate' => date('Y-m-d H:i:s'),
+                    'Status' => 0
+                ]);
+
+                // INSERT DATA KE CHECK IN
+                $check_in_code = 'CKI';
+
+                $counterCKI = Counter::select('CounterNumber')->where('CounterId', $check_in_code)->firstOrfail();
+                $counterCKI->CounterNumber = $counterCKI->CounterNumber + 1;
+
+                $check_in_code = $counterCKI->CounterNumber;
+                $counterCKI->save();
+
+                TxCheckIn::create([
+                    'CheckInCode' => $check_in_code,
+                    'CheckOutCode' => '',
+                    'AssetCode' => $AssetCode,
+                    'Condition' => $request->condition,
+                    'CheckInDate' => date('Y-m-d H:i:s'),
+                    'Notes' => $request->notes,
+                    'Active' => 'A',
+                    'Status' => true,
+                    // 'CreatedBy' => Auth::user()->id,
+                    'CreatedBy' => 'yocky',
+                    'CreatedDate' => date('Y-m-d H:i:s'),
+                    'DeliveredBy' => '',
+                    'ReceivedBy' => $request->receivedBy,
+                    'CheckInLocation' => $request->location
+                ]);
+                // END INSERT DATA KE CHECK IN
+
+                $count++;
             }
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset created successfully!'
+            ], 201);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
@@ -236,42 +248,89 @@ class AssetController extends Controller
         }
     }
 
-    public function updateAsset(Request $request) {}
+    public function updateAsset(Request $request, $id)
+    {
+        $request->validate([
+            'serialNumber' => 'required',
+            'assetName' => 'required|string|max:255',
+            'purchaseDate' => 'required',
+            'supplier' => 'required',
+            'orderNumber' => 'required',
+            'purchaseCost' => 'required|numeric',
+            'warranty' => 'required|numeric',
+            'receivedBy' => 'required',
+            'notes' => 'nullable',
+            'status' => 'required'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            DB::table('MsAsset')
+                ->where('RowId', $id)
+                ->update([
+                    'Condition' => $request->condition,
+                    'SerialNumber' => $request->serialNumber,
+                    'AssetName' => $request->assetName,
+                    'AssetCategoryCode' => $request->category,
+                    'PurchaseDate' => $request->purchaseDate,
+                    'SupplierCode' => $request->supplier,
+                    'OrderNumber' => $request->orderNumber,
+                    'Warranty' => $request->warranty,
+                    'Notes' => $request->notes,
+                    'ReceivedBy' => $request->receivedBy,
+                    // 'LastUpdatedBy' => Auth::user()->id,
+                    'LastUpdatedBy' => 'yocky',
+                    'LastUpdatedDate' => date('Y-m-d H:i:s'),
+                ]);
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset updated successfully!'
+            ], 201);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
 
     public function checkIn(Request $request)
     {
         $request->validate([
-            'checkout_code' => 'required|string|max:50',
-            'asset_code' => 'required|string|max:50',
             'checkin_date' => 'required',
-            'condition' => 'required|string|max:20',
-            'notes' => 'nullable|string|max:200',  // Allowing null for optional Notes
-            'delivered_by' => 'required|string|max:20',
-            'received_by' => 'required|string|max:20',
-            'checkin_location' => 'required|string|max:50',
+            'checkout_code' => 'required',
+            'asset_code' => 'required',
+            'condition' => 'required',
+            'received_by' => 'required',
+            'delivered_by' => 'required',
+            'notes' => 'nullable|string|max:200',
+            'checkin_location' => 'required',
         ]);
 
         DB::beginTransaction();
 
         try {
             $format = 'CKI';
-            $counter = Counter::select('CounterNumber')->where('CounterId', $format)->firstOrFail();
+            $counter = Counter::where('CounterId', $format)->firstOrFail();
             $counter->CounterNumber = $counter->CounterNumber + 1;
 
             $check_in_code = $format . $counter->CounterNumber;
             $counter->save();
 
             TxCheckIn::create([
-                'RowId' => TxCheckIn::getNextRowId(),
                 'CheckInCode' => $check_in_code,
                 'CheckOutCode' => $request->checkout_code,
                 'AssetCode' => $request->asset_code,
                 'Condition' => $request->condition,
                 'CheckInDate' => date($request->checkin_date),
                 'Notes' => $request->notes,
-                'Active' => 'A',
-                'Status' => true,
-                'CreatedBy' => Auth::user()->id,
+                'Active' => '1',
+                'Status' => 'A',
+                // 'CreatedBy' => Auth::user()->id,
+                'CreatedBy' => 'yocky',
                 'CreatedDate' => date('Y-m-d H:i:s'),
                 'LastUpdatedDate' => date('Y-m-d H:i:s'),
                 'DeliveredBy' => $request->delivered_by,
@@ -302,52 +361,102 @@ class AssetController extends Controller
         }
     }
 
+    public function getAssetCheckout(Request $request, $id)
+    {
+        $asset = Asset::with('assetModel')->where('RowId', $id)->firstOrFail();
+        $checkIn = TxCheckIn::where('AssetCode', $asset->AssetCode)->orderBy('CheckInDate', 'desc')->firstOrFail();
+        $response = [
+            'assetCode' => $asset->AssetCode,
+            'assetName' => $asset->AssetName,
+            'model' => $asset->assetModel->ModelName,
+            'status' => $asset->Status == 'A' ? 'Available' : ($asset->Status == 'CO' ? 'Checkout' : 'SDPS'),
+            'purchaseDate' => $asset->PurchaseDate,
+            'lastCheckIn' => $checkIn->CheckInDate,
+        ];
+        return response()->json($response);
+    }
+
+    public function getAssetCheckin(Request $request, $id)
+    {
+        $asset = Asset::with('assetModel')->where('RowId', $id)->firstOrFail();
+        $checkOut = TxCheckOut::with('projectLocation', 'createdPerson')
+            ->where('AssetCode', $asset->AssetCode)
+            ->orderBy('CheckOutDate', 'desc')
+            ->first();
+
+        try {
+            $response = [
+                'model' => $asset->assetModel->ModelName,
+                'checkout_code' => $checkOut->CheckOutCode,
+                'assetCode' => $asset->AssetCode,
+                'assetName' => $asset->AssetName,
+                'checkout_date' => $checkOut->CheckOutDate,
+                'expected_checkin_date' => $checkOut->ExpectedCheckIn,
+                'checkout_notes' => $checkOut->Notes,
+                'checkout_project_location' => $checkOut->projectLocation->LocationCode . ' - ' . $checkOut->projectLocation->LocationName,
+                'checkout_to' => $checkOut->createdPerson->NIK . ' - ' . $checkOut->createdPerson->Nama,
+            ];
+            return response()->json($response);
+        } catch (\Throwable $th) {
+            Log::debug($th->getMessage());
+            return response()->json($th->getMessage(), 500);
+        }
+    }
+
     public function checkOut(Request $request)
     {
         $request->validate([
-            'checkout_code' => 'required|string|max:50',
-            'asset_code' => 'required|string|max:50',
-            'checkout_to' => 'required|string|max:50',
+            'asset_code' => 'nullable',
+            'asset_name' => 'required|string|max:255',
+            'model' => 'nullable',
+            'purchase_date' => 'required',
+            'checkout_to' => 'required',
+            'sub_location' => 'required',
+            'project_location_code' => 'required',
+            'project_code' => 'required',
             'checkout_date' => 'required',
-            'expected_checkin' => 'required|string|max:20', // Assuming this is a string
-            'project_code' => 'required|string|max:50',
-            'project_location_code' => 'required|string|max:50',
-            'notes' => 'nullable|string', // Nullable, if not provided it's fine
-            'user_code' => 'required|string|max:20',
-            'checkout_by' => 'required|string|max:20',
-            'delivered_by' => 'required|string|max:20',
-            'sub_location' => 'required|string|max:20',
-            'acknowledge_by' => 'nullable|string|max:50', // Nullable, may not always be provided
+            'expected_checkin' => 'required',
+            'notes' => 'nullable|string',
+            'checkout_by' => 'required',
+            'delivered_by' => 'required',
+            'acknowledge_by' => 'required',
         ]);
 
         DB::beginTransaction();
         try {
             $format = 'CKO';
-            $counter = Counter::select('CounterNumber')->where('CounterId', $format)->firstOrFail();
-            $counter->CounterNumber = $counter->CounterNumber + 1;
+            $counter = Counter::where('CounterId', $format)->first();
 
-            $check_out_code = $format . $counter->CounterNumber;
-            $counter->save();
+            if ($counter) {
+                $counter->CounterNumber++;
+                $counter->save();
 
+                $count = $counter->CounterNumber;
+            } else {
+                $count = 1;
+            }
+
+            $check_out_code = $format . $count;
 
             TxCheckOut::create([
-                'RowId' => TxCheckOut::getNextRowId(),
                 'CheckOutCode' => $check_out_code,
                 'AssetCode' => $request->asset_code,
+                'DeliveredBy' => $request->delivered_by,
+                'CheckOutTo' => $request->checkout_to,
                 'CheckOutDate' => date($request->checkout_date),
                 'ExpectedCheckIn' => isset($request->expected_checkin) ? date($request->expected_checkin) : '1900-01-01',
                 'ProjectCode' => $request->project_code,
                 'ProjectLocationCode' => $request->project_location_code,
+                'SubLocation' => $request->sub_location,
+                'AcknowledgeBy' => $request->acknowledge_by,
                 'Notes' => $request->notes,
-                'Active' => 'A',
-                'Status' => true,
-                'CreatedBy' => Auth::user()->id,
+                'CreatedBy' => 'yocky',
                 'CreatedDate' => date('Y-m-d H:i:s'),
                 'LastUpdatedDate' => date('Y-m-d H:i:s'),
-                'CheckoutBy' => $request->checkout_by,
-                'DeliveredBy' => $request->delivered_by,
-                'SubLocation' => $request->sub_location,
-                'AcknowledgeBy' => $request->acknowledge_by
+                'Active' => 'A',
+                'Status' => '1',
+                'CheckOutBy' => $request->checkout_by,
+                'LastUpdatedBy' => 'yocky',
             ]);
 
 

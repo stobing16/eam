@@ -87,12 +87,85 @@ const routes = [
         children: [
             {
                 path: 'asset',
-                meta: {
-                    layout: AppLayout,
-                    requiresAuth: true
-                },
-                name: 'asset',
-                component: () => import('../views/transaksi/Asset.vue')
+                children: [
+                    {
+                        path: '',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        name: 'asset',
+                        component: () => import('../views/transaksi/Asset.vue'),
+                    },
+                    {
+                        path: 'checkout/:id',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        props: true,
+                        name: 'asset-checkout',
+                        component: () => import('../views/transaksi/AssetCheckout.vue'),
+                    },
+                    {
+                        path: 'checkin/:id',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        props: true,
+                        name: 'asset-checkin',
+                        component: () => import('../views/transaksi/AssetCheckIn.vue'),
+                    }
+                ],
+            },
+            {
+                path: 'opname-order',
+                children: [
+                    {
+                        path: '',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        name: 'opname-order',
+                        component: () => import('../views/transaksi/OpnameOrder.vue'),
+                    },
+                    {
+                        path: ':id',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        props: true,
+                        name: 'opname-order-details',
+                        component: () => import('../views/transaksi/OpnameOrderDetails.vue'),
+                    },
+                ],
+            },
+            {
+                path: 'asset-movement',
+                children: [
+                    {
+                        path: '',
+                        meta: {
+                            layout: AppLayout,
+                            requiresAuth: true
+                        },
+                        name: 'asset-movement',
+                        component: () => import('../views/transaksi/AssetMovement.vue'),
+                    },
+                    // {
+                    //     path: ':id',
+                    //     meta: {
+                    //         layout: AppLayout,
+                    //         requiresAuth: true
+                    //     },
+                    //     props: true,
+                    //     name: 'opname-order-details',
+                    //     component: () => import('../views/transaksi/OpnameOrderDetails.vue'),
+                    // },
+                ],
             },
         ]
     },

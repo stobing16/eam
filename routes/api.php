@@ -36,17 +36,25 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 });
+
+// Transaksi
 Route::prefix('transaksi')->group(function () {
     Route::get('/assets', [AssetController::class, 'index']);
+    Route::get('/assets/{id}/check-out', [AssetController::class, 'getAssetCheckout']);
+    Route::get('/assets/{id}/check-in', [AssetController::class, 'getAssetCheckin']);
+    Route::get('/assets/list', [AssetController::class, 'getFormDataList']);
+
     Route::post('/assets', [AssetController::class, 'saveAsset']);
-    Route::patch('/assets', [AssetController::class, 'updateAsset']);
+    Route::patch('/assets/{id}', [AssetController::class, 'updateAsset']);
+
     Route::post('/assets/checkin', [AssetController::class, 'checkIn']);
     Route::post('/assets/checkout', [AssetController::class, 'checkOut']);
 
-    Route::get('/opname', [OpnameController::class, 'index'])->name('opname');
-    Route::get('/opname/{id}', [OpnameController::class, 'details'])->name('opname.details');
-    Route::post('/opname', [OpnameController::class, 'saveOpname'])->name('opname.save');
-    Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname'])->name('opname.update');
+    Route::get('/opname', [OpnameController::class, 'index']);
+    Route::get('/opname/loc', [OpnameController::class, 'getLocationList']);
+    Route::get('/opname/{id}', [OpnameController::class, 'details']);
+    Route::post('/opname', [OpnameController::class, 'saveOpname']);
+    Route::patch('/opname/{id}', [OpnameController::class, 'updateOpname']);
 });
 
 // MASTER

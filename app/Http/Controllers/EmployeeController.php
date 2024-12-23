@@ -14,18 +14,11 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-
-        // $request->validate([
-        //     'per_page' => 'numeric|min:1',
-        //     'current_page' => 'numeric|min:1',
-        // ]);
-
         $page = (int) $request->input('per_page', 10);
         $current_page = (int) $request->input('current_page', 1);
         $search = $request->input('search', '');
 
         $query = Employee::orderBy('CreatedDate', 'desc');
-
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

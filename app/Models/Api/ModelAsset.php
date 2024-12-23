@@ -30,4 +30,9 @@ class ModelAsset extends Model
     {
         return parent::max('RowId') + 1;
     }
+
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'BrandCode', 'BrandCode');
+    }
 }

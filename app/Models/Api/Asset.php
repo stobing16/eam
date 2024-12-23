@@ -3,8 +3,11 @@
 namespace App\Models\Api;
 
 use App\Models\Company;
+use App\Models\Location;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Asset extends Model
 {
@@ -24,6 +27,7 @@ class Asset extends Model
         'AssetCategoryCode',
         'PurchaseDate',
         'SupplierCode',
+        'SerialNumber',
         'OrderNumber',
         'PurchaseCost',
         'Warranty',
@@ -33,7 +37,8 @@ class Asset extends Model
         'Status',
         'Active',
         'CreatedDate',
-        'CreatedBy'
+        'CreatedBy',
+        'LastUpdatedBy',
     ];
 
     public static function getNextRowId()
@@ -53,11 +58,27 @@ class Asset extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(ModelAsset::class, 'SupplierCode', 'SupplierCode');
+        return $this->belongsTo(Supplier::class, 'SupplierCode', 'SupplierCode');
     }
 
     public function location()
     {
-        return $this->belongsTo(ModelAsset::class, 'LocationCode', 'LocationCode');
+        return $this->belongsTo(Location::class, 'LocationCode', 'LocationCode');
+    }
+
+    public function assetStatus()
+    {
+        return $this->hasOne(PickList::class, 'ChildId', 'Status')->where('ParentId', 3);
+    }
+
+    public function assetCondition()
+    {
+        return $this->hasOne(PickList::class, 'ChildId', 'Condition')->where('ParentId', 2);
+    }
+
+    public function txCheckout()
+    {
+        return $this->hasOne(TxCheckOut::class, 'AssetCode', 'AssetCode')
+            ->orderBy('CheckOutDate', 'desc')->orderBy('RowId', 'desc');
     }
 }

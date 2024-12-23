@@ -60,6 +60,8 @@ const dropdownItems = [
         icon: '',
         menu: [
             { route: '/transaksi/asset', name: 'Asset' },
+            { route: '/transaksi/opname-order', name: 'Opname Order' },
+            { route: '/transaksi/asset-movement', name: 'Asset Movement' },
         ]
     }
 ];
@@ -79,6 +81,7 @@ const route = useRoute();
 const isActiveRoute = (routeToCheck) => {
     return route.path === routeToCheck;
 }
+
 </script>
 
 <style scoped>

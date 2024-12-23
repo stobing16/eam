@@ -24,6 +24,8 @@ class TxOpnameOrder extends Model
         'Active',
         'CreatedDate',
         'CreatedBy',
+        'LastUpdatedBy',
+        'LastUpdatedDate',
     ];
 
     public static function getNextRowId()
@@ -33,6 +35,11 @@ class TxOpnameOrder extends Model
 
     public function location()
     {
-        return $this->belongsTo(Location::class, 'LocationCode', 'RowId');
+        return $this->belongsTo(Location::class, 'LocationCode', 'LocationCode');
+    }
+
+    public function opnameAndroids()
+    {
+        return $this->hasMany(TxOpnameAssetAndroidSingleTemp::class, 'OpnameOrderId', 'OpnameOrderId')->select('OpnameOrderId');
     }
 }
