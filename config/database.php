@@ -90,7 +90,7 @@ return [
             'prefix' => '',
             'options' => [
                 PDO::SQLSRV_ATTR_ENCODING => PDO::SQLSRV_ENCODING_UTF8,
-//                PDO::SQLSRV_ATTR_CONNECTION_TIMEOUT => 30, // Optional: Increase connection timeout
+            //    PDO::SQLSRV_ATTR_CONNECTION_TIMEOUT => 30, // Optional: Increase connection timeout
             ],
             'encrypt' => env('DB_ENCRYPT', 'yes'),
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'true'),

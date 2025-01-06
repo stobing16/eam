@@ -46,10 +46,19 @@ class EmployeeController extends Controller
         return response()->json($response);
     }
 
-
     public function jabatan()
     {
         $query = DB::select('SELECT DISTINCT Jabatan FROM MsEmployees');
+        return response()->json([
+            'success' => true,
+            'message' => '',
+            'data' => $query
+        ]);
+    }
+
+    public function client()
+    {
+        $query = DB::select('SELECT * FROM MsClient');
         return response()->json([
             'success' => true,
             'message' => '',
@@ -67,13 +76,14 @@ class EmployeeController extends Controller
         try {
             Employee::create([
                 'RowId' => $data['RowId'],
-                'Nama' => $data['Nama'],
+                'Nama' => $data['nama'],
                 'NIK' => $data['nik'],
-                'Email' => $data['Email'],
-                'Department' => $data['Department'],
-                'Jabatan' => $data['Jabatan'],
-                'Status' => $data['Status'],
-                'Active' => 1,
+                'Jabatan' => $data['jabatan'],
+                'NPWP' => $data['npwp'],
+                'PTKP' => $data['ptkp'],
+                'JoinDate' => $data['join_date'],
+                'NoRek' => $data['no_rek'],
+                'NamaRek' => $data['nama_rek'],
                 'CreatedDate' => $data['CreatedDate'],
             ]);
 
@@ -93,33 +103,45 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
+        DB::beginTransaction();
+        $duplicated_data = [];
+
         try {
             foreach ($data as $value) {
                 // CHECK IF DATA WITH THIS NIK EXISTS
                 $isEmployeeExists = Employee::where('NIK', $value['nik'])->exists();
-                if ($isEmployeeExists) continue;
+                if ($isEmployeeExists) {
+                    $duplicated_data[] = [
+                        'nik' => $value['nik'],
+                        'nama' => $value['nama'],
+                    ];
+                };
 
                 $value['RowId'] = Employee::getNextRowId();
                 $value['CreatedDate'] = date('Y-m-d H:i:s');
 
                 Employee::create([
-                    'RowId' => $value['RowId'],
-                    'Nama' => $value['name'],
-                    'NIK' => $value['nik'],
-                    'Email' => $value['email'],
-                    'Department' => isset($value['department']) ? $value['department'] : null,
-                    'Jabatan' => $value['jabatan'],
-                    'Status' => $value['status'] ? "A" : "I",
-                    'Active' => $value['status'],
-                    'CreatedDate' => $value['CreatedDate'],
+                    'RowId' => $data['RowId'],
+                    'Nama' => $data['nama'],
+                    'NIK' => isset($data['nik']) ? $data['nik'] : "###",
+                    'Jabatan' => $data['jabatan'],
+                    'NPWP' => $data['npwp'],
+                    'PTKP' => $data['ptkp'],
+                    'JoinDate' => $data['join_date'],
+                    'NoRek' => $data['no_rek'],
+                    'NamaRek' => $data['nama_rek'],
+                    'CreatedDate' => $data['CreatedDate'],
                 ]);
             }
 
+            DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Employee created successfully!'
+                'message' => 'Employee created successfully!',
+                'additional_data' => $duplicated_data
             ], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage()

@@ -18,9 +18,9 @@
                     <tr>
                         <th>#</th>
                         <th>Name</th>
-                        <th>Department</th>
+                        <th>NIK</th>
                         <th>Position</th>
-                        <th>Email</th>
+                        <th>NPWP</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -29,9 +29,9 @@
                     <tr v-for="(employee, index) in employees" :key="employee.id">
                         <td>{{ index + 1 + (pagination.currentPage - 1) * pagination.rowsPerPage }}</td>
                         <td>{{ employee.Nama }}</td>
-                        <td>{{ employee.Department }}</td>
+                        <td>{{ employee.NIK }}</td>
                         <td>{{ employee.Jabatan }}</td>
-                        <td>{{ employee.Email }}</td>
+                        <td>{{ employee.NPWP }}</td>
                         <td>{{ employee.Status === 'A' ? 'Active' : 'Inactive' }}</td>
                         <td>
                             <button class="btn btn-info btn-sm" @click="openEditModal(employee)">Edit</button>
@@ -55,56 +55,80 @@
         </div>
 
         <div class="modal" tabindex="-1" :class="{ show: showModal }" style="display: block;" v-if="showModal">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">{{ isEditing ? 'Edit Employee' : 'Create Employee' }}</h5>
                         <button type="button" class="btn-close" @click="closeModal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="name">NIK</label>
-                            <input type="text" id="name" class="form-control" v-model="selectedEmployee.nik" />
-                        </div>
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" id="name" class="form-control" v-model="selectedEmployee.Nama" />
-                        </div>
-                        <div class="form-group">
-                            <label for="department">Department</label>
-                            <input type="text" id="department" class="form-control"
+                        <div class="row">
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">NIK <span class="text-danger">*</span></label>
+                                <input type="text" placeholder="NIK" id="nik" class="form-control"
+                                    v-model="selectedEmployee.nik" required />
+                            </div>
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">Name <span class="text-danger">*</span></label>
+                                <input type="text" id="name" placeholder="Nama" class="form-control"
+                                    v-model="selectedEmployee.nama" required />
+                            </div>
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">NPWP</label>
+                                <input type="text" id="name" placeholder="NPWP" class="form-control"
+                                    v-model="selectedEmployee.npwp" />
+                            </div>
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">PTKP</label>
+                                <input type="text" id="name" placeholder="PTKP" class="form-control"
+                                    v-model="selectedEmployee.ptkp" />
+                            </div>
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">No. Rekening</label>
+                                <input type="text" id="name" placeholder="No. Rekening" class="form-control"
+                                    v-model="selectedEmployee.no_rek" />
+                            </div>
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">Nama Rekening</label>
+                                <input type="text" id="name" placeholder="Nama Rekening" class="form-control"
+                                    v-model="selectedEmployee.nama_rek" />
+                            </div>
+                            <!-- <div class="form-group col-6 mb-2">
+                                <label for="department">Department</label>
+                                <input type="text" id="department" class="form-control" placeholder="Department"
                                 v-model="selectedEmployee.Department" />
-                        </div>
-                        <div class="form-group">
-                            <label for="jabatan">Position</label>
-                            <select id="jabatan" class="form-control" v-model="selectedEmployee.Jabatan">
-                                <option value="">Select Jabatan</option>
-                                <option v-for="jabatan in jabatanList" :key="jabatan.id" :value="jabatan.Jabatan">
-                                    {{ jabatan.Jabatan }}
-                                </option>
-                            </select>
-                        </div>
+                            </div> -->
+                            <div class="form-group col-6 mb-2">
+                                <label for="jabatan">Position</label>
+                                <select id="jabatan" class="form-control" v-model="selectedEmployee.jabatan" :disabled="isEditing">
+                                    <option value="">Select Jabatan</option>
+                                    <option v-for="jabatan in jabatanList" :key="jabatan.id" :value="jabatan.Jabatan" >
+                                        {{ jabatan.Jabatan }}
+                                    </option>
+                                </select>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" class="form-control" v-model="selectedEmployee.Email" />
+                            <div class="form-group col-6 mb-2">
+                                <label for="name">Join Date</label>
+                                <input :type="isEditing ? 'text' : 'date'" id="name" class="form-control" :disabled="isEditing"
+                                     v-model="selectedEmployee.join_date" />
+                            </div>
+
+                            <div class="form-group col-6 mb-2" v-if="isEditing">
+                                <label for="status">Status</label>
+                                <select id="status" class="form-control" v-model="selectedEmployee.Status">
+                                    <option value="A">Active</option>
+                                    <option value="I">Inactive</option>
+                                </select>
+                            </div>
+
                         </div>
-
-                        <div class="form-group" v-if="isEditing">
-                            <label for="status">Status</label>
-                            <select id="status" class="form-control" v-model="selectedEmployee.Status">
-                                <option value="A">Active</option>
-                                <option value="I">Inactive</option>
-                            </select>
-                        </div>
-
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
                         <button type="button" class="btn btn-primary"
                             @click="isEditing ? updateEmployee() : createEmployee()">
-                            {{ isEditing ? 'Save Changes' : 'Create Employee' }}
+                            {{ isEditing ? 'Update' : 'Submit' }}
                         </button>
                     </div>
                 </div>
@@ -157,10 +181,18 @@ export default {
             showModalExcel: false,
             selectedEmployee: {
                 nik: "",
-                Nama: "",
-                Department: "",
-                Jabatan: "",
-                Email: "",
+                nama: "",
+                npwp: "",
+                ptkp: "",
+                no_rek: "",
+                nama_rek: "",
+                nama_rek: "",
+                client_id: "",
+                sub_client_id: "",
+                jabatan: "",
+                work_location: "",
+                join_date: "",
+                resign_date: "",
                 Status: "A",
             },
             excelFile: null,
@@ -203,7 +235,15 @@ export default {
         },
 
         openEditModal(employee) {
-            this.selectedEmployee = { ...employee };
+            this.selectedEmployee.nama = employee.Nama;
+            this.selectedEmployee.nik = employee.NIK;
+            this.selectedEmployee.npwp = employee.NPWP;
+            this.selectedEmployee.ptkp = employee.PTKP;
+            this.selectedEmployee.no_rek = employee.NoRek;
+            this.selectedEmployee.nama_rek = employee.NamaRek;
+            this.selectedEmployee.jabatan = employee.Jabatan;
+            this.selectedEmployee.join_date = employee.JoinDate;
+
             if (!this.selectedEmployee.Status) {
                 this.selectedEmployee.Status = "A";
             }
@@ -213,10 +253,20 @@ export default {
 
         openCreateModal() {
             this.selectedEmployee = {
-                Nama: "",
-                Department: "",
-                Jabatan: "",
-                Email: "",
+                nama: "",
+                nik: "",
+                npwp: "",
+                ptkp: "",
+                no_rek: "",
+                nama_rek: "",
+                client_id: "",
+                sub_client_id: "",
+                jabatan: "",
+                work_location: "",
+                join_date: "",
+                resign_date: "",
+                // Department: "",
+                // Email: "",
                 Status: "A",
             };
             this.isEditing = false;
@@ -240,9 +290,9 @@ export default {
         async createEmployee() {
             try {
                 const response = await axios.post("/api/employee", this.selectedEmployee);
-                alert("Employee created successfully!");
-                this.fetchEmployees(this.pagination.currentPage);
-                this.closeModal();
+                // alert("Employee created successfully!");
+                // this.fetchEmployees(this.pagination.currentPage);
+                // this.closeModal();
             } catch (error) {
                 console.error("Error creating employee:", error);
                 alert("Failed to create employee.");

@@ -24,12 +24,14 @@ class EmployeeStoreRequest extends FormRequest
     {
         return [
             'nik' => 'required|string|max:15',
-            'Nama' => 'required|string|max:255',
-            'Email' => 'required|email|max:255',
-            'Jabatan' => 'nullable',
-            'Department' => 'nullable',
-            'nik' => 'nullable',
-            'Status' => 'nullable',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'nullable',
+            'join_date' => 'nullable',
+            'npwp' => 'nullable',
+            'ptkp' => 'nullable',
+            'no_rek' => 'nullable',
+            'nama_rek' => 'nullable',
+            'join_date' => 'nullable',
         ];
     }
 
